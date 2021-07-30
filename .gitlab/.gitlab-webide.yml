@@ -1,3 +1,2 @@
 terminal:
   image: eicweb.phy.anl.gov:4567/eic/juggler/juggler:latest
-  script: sleep 60
