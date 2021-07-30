@@ -13,4 +13,4 @@ generate:
 run:
   stage: test
   script:
-    - scripts/run.sh $(scripts/generate.sh) 100 1
+    - scripts/run.sh $(scripts/generate.sh) 100

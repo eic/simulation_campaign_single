@@ -22,15 +22,21 @@ else
   TASK=$(printf ".%04d" ${3})
 fi
 
+# Output location
+BASEDIR=${DATADIR:-${PWD}}
+MINIOS3="S3rw/eictest/ATHENA"
+
 # Input file parsing
 BASENAME=$(basename ${INPUT_FILE} .steer)
-TAG=${BASENAME//_/\/}
-mkdir -p  ${BASEDIR}/FULL/SINGLE/${TAG}
-FULL_FILE=${BASEDIR}/FULL/SINGLE/${TAG}/${BASENAME}${TASK}.root
-mkdir -p  ${BASEDIR}/GEOM/SINGLE/${TAG}
-GEOM_ROOT=${BASEDIR}/GEOM/SINGLE/${TAG}/${BASENAME}${TASK}.geom
-mkdir -p  ${BASEDIR}/RECO/SINGLE/${TAG}
-RECO_FILE=${BASEDIR}/RECO/SINGLE/${TAG}/${BASENAME}${TASK}.root
+SINGLETAG="SINGLE/${BASENAME//_/\/}"
+mkdir -p  ${BASEDIR}/FULL/${SINGLETAG}
+FULL_FILE=${BASEDIR}/FULL/${SINGLETAG}/${BASENAME}${TASK}.root
+FULL_S3RW=${MINIOS3}/FULL/${SINGLETAG}/${BASENAME}${TASK}.root
+mkdir -p  ${BASEDIR}/GEOM/${SINGLETAG}
+GEOM_ROOT=${BASEDIR}/GEOM/${SINGLETAG}/${BASENAME}${TASK}.geom
+mkdir -p  ${BASEDIR}/RECO/${SINGLETAG}
+RECO_FILE=${BASEDIR}/RECO/${SINGLETAG}/${BASENAME}${TASK}.root
+RECO_S3RW=${MINIOS3}/RECO/${SINGLETAG}/${BASENAME}${TASK}.root
 
 # Load environment
 source /opt/detector/setup.sh
@@ -60,7 +66,7 @@ echo "LD_LIBRARY_PATH" >> ${GEOM_ROOT}/setup.sh
 # Data egress if config.json in $PWD
 if [ -x /usr/local/bin/mc -a -f ./config.json ] ; then
   if ping -c 1 -w 5 google.com > /dev/null ; then
-    mc -C ./config.json cp ${FULL_FILE} S3rw/eictest/ATHENA/FULL/SINGLE/${TAG}/${BASENAME}${TASK}.root
+    /usr/local/bin/mc -C ./config.json cp "${FULL_FILE}" "${FULL_S3RW}"
   else
     echo "No internet connection."
   fi
@@ -78,10 +84,10 @@ xenv -x /usr/local/Juggler.xenv \
   gaudirun.py /opt/benchmarks/reconstruction_benchmarks/benchmarks/full/options/full_reconstruction.py
 rootls -t "${RECO_FILE}"
 
-# Data egress
-if [ -x /usr/local/bin/mc ] ; then
+# Data egress if config.json in $PWD
+if [ -x /usr/local/bin/mc -a -f ./config.json ] ; then
   if ping -c 1 -w 5 google.com > /dev/null ; then
-    /usr/local/bin/mc cp ${RECO_FILE} S3rw/eictest/ATHENA/RECO/SINGLE/${TAG}/${BASENAME}${TASK}.root
+    /usr/local/bin/mc -C ./config.json cp "${RECO_FILE}" "${RECO_S3RW}"
   else
     echo "No internet connection."
   fi
