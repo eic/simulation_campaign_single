@@ -1,0 +1,16 @@
+image: eicweb.phy.anl.gov:4567/eic/juggler/juggler:latest
+
+generate:
+  stage: test
+  script:
+    - test "$(scripts/generate.sh)" = "e-_1GeV_45to135deg.steer"
+    - scripts/generate.sh && test -f e-_1GeV_45to135deg.steer
+    - scripts/generate.sh e- 1*GeV 45 135 && test -f e-_1GeV_45to135deg.steer
+    - scripts/generate.sh J/psi 1*GeV && test -f Jpsi_1GeV_45to135deg.steer
+    - scripts/generate.sh eta_prime 1*GeV && test -f etaprime_1GeV_45to135deg.steer
+    - scripts/generate.sh anti_nu_mu 1*GeV && test -f antinumu_1GeV_45to135deg.steer
+
+run:
+  stage: test
+  script:
+    - scripts/run.sh $(scripts/generate.sh) 100 1

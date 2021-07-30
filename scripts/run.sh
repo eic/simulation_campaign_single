@@ -22,8 +22,21 @@ else
   TASK=$(printf ".%04d" ${3})
 fi
 
+# Input file parsing
+BASENAME=$(basename ${INPUT_FILE} .steer)
+TAG=${BASENAME//_/\/}
+mkdir -p  ${BASEDIR}/FULL/SINGLE/${TAG}
+FULL_FILE=${BASEDIR}/FULL/SINGLE/${TAG}/${BASENAME}${TASK}.root
+mkdir -p  ${BASEDIR}/GEOM/SINGLE/${TAG}
+GEOM_ROOT=${BASEDIR}/GEOM/SINGLE/${TAG}/${BASENAME}${TASK}.geom
+mkdir -p  ${BASEDIR}/RECO/SINGLE/${TAG}
+RECO_FILE=${BASEDIR}/RECO/SINGLE/${TAG}/${BASENAME}${TASK}.root
+
 # Load environment
 source /opt/detector/setup.sh
+
+# Detector description
+COMPACT_FILE=/opt/detector/share/athena/athena.xml
 
 # Run simulation
 /usr/bin/time -v \
