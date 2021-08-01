@@ -10,7 +10,12 @@ generate:
     - scripts/generate.sh eta_prime 1*GeV && test -f etaprime_1GeV_45to135deg.steer
     - scripts/generate.sh anti_nu_mu 1*GeV && test -f antinumu_1GeV_45to135deg.steer
 
-run:
+run_electron_1GeV_45to135deg:
   stage: test
   script:
-    - scripts/run.sh $(scripts/generate.sh) 100
+    - scripts/run.sh $(scripts/generate.sh e- 1*GeV 45 135) 100 && test -f RECO/e-_1GeV_45to135deg/e-_1GeV_45to135deg.root
+
+run_pion_1GeV_3to50deg_0001:
+  stage: test
+  script:
+    - scripts/run.sh $(scripts/generate.sh pi+ 1*GeV 3 50) 100 1 && test -f RECO/pi+_1GeV_3to50deg/pi+_1GeV_3to50deg.0001.root
