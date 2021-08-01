@@ -16,7 +16,7 @@ INPUT_FILE=${1}
 # - number of events
 EVENTS_PER_TASK=${2:-10000}
 # - current chunk
-if [ -z ${3} ] ; then
+if [ ${#} -lt 3 ] ; then
   TASK=""
 else
   TASK=$(printf ".%04d" ${3})
