@@ -38,15 +38,16 @@ mkdir -p  ${BASEDIR}/RECO/${SINGLETAG}
 RECO_FILE=${BASEDIR}/RECO/${SINGLETAG}/${BASENAME}${TASK}.root
 RECO_S3RW=${MINIOS3}/RECO/${SINGLETAG}/${BASENAME}${TASK}.root
 
-# Load environment
-source /opt/detector/setup.sh
-
 # Detector description
 COMPACT_FILE=/opt/detector/share/athena/athena.xml
 
-# Run simulation
-/usr/bin/time -v \
-npsim \
+# Check for existing full simulation on local node
+if [ ! -f ${FULL_FILE} -o ! -d ${GEOM_ROOT} ] ; then
+  # Load container environment
+  source /opt/detector/setup.sh
+
+  /usr/bin/time -v \
+    npsim \
     --runType run \
     --printLevel WARNING \
     --enableGun \
@@ -54,26 +55,29 @@ npsim \
     --numberOfEvents ${EVENTS_PER_TASK} \
     --compactFile ${COMPACT_FILE} \
     --outputFile ${FULL_FILE}
-rootls -t "${FULL_FILE}"
+  rootls -t "${FULL_FILE}"
 
-# Take snapshot of geometry and versions
-mkdir -p ${GEOM_ROOT}
-cp -r /opt/detector/* ${GEOM_ROOT}
-eic-info > ${GEOM_ROOT}/eic-info.txt
-echo -n "export LD_LIBRARY_PATH=${GEOM_ROOT}/lib:$" > ${GEOM_ROOT}/setup.sh
-echo "LD_LIBRARY_PATH" >> ${GEOM_ROOT}/setup.sh
+  # Take snapshot of geometry and versions
+  mkdir -p ${GEOM_ROOT}
+  cp -r /opt/detector/* ${GEOM_ROOT}
+  eic-info > ${GEOM_ROOT}/eic-info.txt
+  echo -n "export LD_LIBRARY_PATH=${GEOM_ROOT}/lib:$" > ${GEOM_ROOT}/setup.sh
+  echo "LD_LIBRARY_PATH" >> ${GEOM_ROOT}/setup.sh
 
-# Data egress if config.json in $PWD
-if [ -x /usr/local/bin/mc -a -f ./config.json ] ; then
-  if ping -c 1 -w 5 google.com > /dev/null ; then
-    /usr/local/bin/mc -C ./config.json cp "${FULL_FILE}" "${FULL_S3RW}"
-  else
-    echo "No internet connection."
+  # Data egress if config.json in $PWD
+  if [ -x /usr/local/bin/mc -a -f ./config.json ] ; then
+    if ping -c 1 -w 5 google.com > /dev/null ; then
+      /usr/local/bin/mc -C ./config.json cp "${FULL_FILE}" "${FULL_S3RW}"
+    else
+      echo "No internet connection."
+    fi
   fi
+else
+  # Load snapshot environment
+  source ${GEOM_ROOT}/setup.sh
 fi
 
 # Run reconstruction
-source ${GEOM_ROOT}/setup.sh
 export JUGGLER_SIM_FILE="${FULL_FILE}"
 export JUGGLER_REC_FILE="${RECO_FILE}"
 export JUGGLER_N_EVENTS=2147483647
