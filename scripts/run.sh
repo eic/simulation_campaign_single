@@ -72,17 +72,16 @@ if [ ! -f ${FULL_FILE} -o ! -d ${GEOM_ROOT} ] ; then
       echo "No internet connection."
     fi
   fi
-else
-  # Load snapshot environment
-  source ${GEOM_ROOT}/setup.sh
 fi
+
+# Load snapshot environment
+source ${GEOM_ROOT}/setup.sh
 
 # Run reconstruction
 export JUGGLER_SIM_FILE="${FULL_FILE}"
 export JUGGLER_REC_FILE="${RECO_FILE}"
 export JUGGLER_N_EVENTS=2147483647
 export JUGGLER_DETECTOR=athena
-export DETECTOR_PATH="${GEOM_ROOT}/share/athena"
 /usr/bin/time -v \
 xenv -x /usr/local/Juggler.xenv \
   gaudirun.py /opt/benchmarks/reconstruction_benchmarks/benchmarks/full/options/full_reconstruction.py
