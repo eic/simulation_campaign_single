@@ -28,15 +28,30 @@ MINIOS3="S3rw/eictest/ATHENA"
 
 # Input file parsing
 BASENAME=$(basename ${INPUT_FILE} .steer)
-SINGLETAG="SINGLE/${BASENAME//_/\/}"
-mkdir -p  ${BASEDIR}/FULL/${SINGLETAG}
-FULL_FILE=${BASEDIR}/FULL/${SINGLETAG}/${BASENAME}${TASK}.root
-FULL_S3RW=${MINIOS3}/FULL/${SINGLETAG}/${BASENAME}${TASK}.root
-mkdir -p  ${BASEDIR}/GEOM/${SINGLETAG}
-GEOM_ROOT=${BASEDIR}/GEOM/${SINGLETAG}/${BASENAME}${TASK}.geom
-mkdir -p  ${BASEDIR}/RECO/${SINGLETAG}
-RECO_FILE=${BASEDIR}/RECO/${SINGLETAG}/${BASENAME}${TASK}.root
-RECO_S3RW=${MINIOS3}/RECO/${SINGLETAG}/${BASENAME}${TASK}.root
+TAG="${BASENAME//_/\/}"
+
+# Create input file if not present
+if [ ! -f ${INPUT_FILE} ] ; then
+  if [[ ${BASENAME} =~ (.*)_(.*)_([0-9]+)to([0-9]+)deg ]] ; then
+    INPUT_FILE=$($(dirname ${0})/generate.sh ${BASH_REMATCH[1]} ${BASH_REMATCH[2]} ${BASH_REMATCH[3]} ${BASH_REMATCH[4]})
+    echo "Generated ${INPUT_FILE}"
+  else
+    echo "Error: Unable to generate input file."
+    exit 1
+  fi
+fi
+
+# Output file names
+mkdir -p  ${BASEDIR}/FULL/SINGLE/${TAG}
+FULL_FILE=${BASEDIR}/FULL/SINGLE/${TAG}/${BASENAME}${TASK}.root
+FULL_S3RW=${MINIOS3}/FULL/SINGLE/${TAG}/${BASENAME}${TASK}.root
+FULL_S3RW=${FULL_S3RW//\/\//\/}
+mkdir -p  ${BASEDIR}/GEOM/SINGLE/${TAG}
+GEOM_ROOT=${BASEDIR}/GEOM/SINGLE/${TAG}/${BASENAME}${TASK}.geom
+mkdir -p  ${BASEDIR}/RECO/SINGLE/${TAG}
+RECO_FILE=${BASEDIR}/RECO/SINGLE/${TAG}/${BASENAME}${TASK}.root
+RECO_S3RW=${MINIOS3}/RECO/SINGLE/${TAG}/${BASENAME}${TASK}.root
+RECO_S3RW=${RECO_S3RW//\/\//\/}
 
 # Detector description
 COMPACT_FILE=/opt/detector/share/athena/athena.xml
