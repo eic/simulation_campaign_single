@@ -3,6 +3,17 @@ set -Euo pipefail
 trap 's=$?; echo "$0: Error on line "$LINENO": $BASH_COMMAND"; exit $s' ERR
 IFS=$'\n\t'
 
+# Check arguments
+if [ $# -lt 1 ] ; then
+  echo "Usage: "
+  echo "  $0 <input> [n_chunk=10000] [i_chunk=]"
+  echo
+  echo "A typical npsim run requires from 0.5 to 5 core-seconds per event,"
+  echo "and uses under 3 GB of memory. The output ROOT file for"
+  echo "10k events take up about 2 GB in disk space."
+  exit
+fi
+
 # Startup
 date
 hostname
@@ -68,6 +79,7 @@ if [ ! -f ${FULL_FILE} -o ! -d ${GEOM_ROOT} ] ; then
   # Load container environment
   source /opt/detector/setup.sh
 
+  # Run simulation
   /usr/bin/time -v \
     npsim \
     --runType run \
@@ -83,10 +95,9 @@ if [ ! -f ${FULL_FILE} -o ! -d ${GEOM_ROOT} ] ; then
   mkdir -p ${GEOM_ROOT}
   cp -r /opt/detector/* ${GEOM_ROOT}
   eic-info > ${GEOM_ROOT}/eic-info.txt
-  echo -n "export LD_LIBRARY_PATH=${GEOM_ROOT}/lib:$" > ${GEOM_ROOT}/setup.sh
-  echo "LD_LIBRARY_PATH" >> ${GEOM_ROOT}/setup.sh
+  echo "export LD_LIBRARY_PATH=${GEOM_ROOT}/lib:${LD_LIBRARY_PATH}" > ${GEOM_ROOT}/setup.sh
 
-  # Data egress if config.json in $PWD
+  # Data egress if S3RW_ACCESS_KEY and S3RW_SECRET_KEY in environment
   if [ -x ${MC} ] ; then
     if ping -c 1 -w 5 google.com > /dev/null ; then
       if [ -n ${S3RW_ACCESS_KEY} -a -n ${S3RW_SECRET_KEY} ] ; then
@@ -118,7 +129,7 @@ xenv -x /usr/local/Juggler.xenv \
 # FIXME why $? = 4
 rootls -t "${RECO_FILE}"
 
-# Data egress if config.json in $PWD
+# Data egress if S3RW_ACCESS_KEY and S3RW_SECRET_KEY in environment
 if [ -x ${MC} ] ; then
   if ping -c 1 -w 5 google.com > /dev/null ; then
     if [ -n ${S3RW_ACCESS_KEY} -a -n ${S3RW_SECRET_KEY} ] ; then
