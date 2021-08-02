@@ -24,7 +24,14 @@ fi
 
 # Output location
 BASEDIR=${DATADIR:-${PWD}}
-MINIOS3="S3rw/eictest/ATHENA"
+
+# S3 locations
+MC="/usr/local/bin/mc"
+S3URL="https://dtn01.sdcc.bnl.gov:9000"
+S3RO="S3"
+S3RW="S3rw"
+S3RODIR="${S3RO}/eictest/ATHENA"
+S3RWDIR="${S3RW}/eictest/ATHENA"
 
 # Input file parsing
 BASENAME=$(basename ${INPUT_FILE} .steer)
@@ -44,13 +51,13 @@ fi
 # Output file names
 mkdir -p  ${BASEDIR}/FULL/SINGLE/${TAG}
 FULL_FILE=${BASEDIR}/FULL/SINGLE/${TAG}/${BASENAME}${TASK}.root
-FULL_S3RW=${MINIOS3}/FULL/SINGLE/${TAG}/${BASENAME}${TASK}.root
+FULL_S3RW=${S3RWDIR}/FULL/SINGLE/${TAG}/${BASENAME}${TASK}.root
 FULL_S3RW=${FULL_S3RW//\/\//\/}
 mkdir -p  ${BASEDIR}/GEOM/SINGLE/${TAG}
 GEOM_ROOT=${BASEDIR}/GEOM/SINGLE/${TAG}/${BASENAME}${TASK}.geom
 mkdir -p  ${BASEDIR}/RECO/SINGLE/${TAG}
 RECO_FILE=${BASEDIR}/RECO/SINGLE/${TAG}/${BASENAME}${TASK}.root
-RECO_S3RW=${MINIOS3}/RECO/SINGLE/${TAG}/${BASENAME}${TASK}.root
+RECO_S3RW=${S3RWDIR}/RECO/SINGLE/${TAG}/${BASENAME}${TASK}.root
 RECO_S3RW=${RECO_S3RW//\/\//\/}
 
 # Detector description
@@ -80,9 +87,15 @@ if [ ! -f ${FULL_FILE} -o ! -d ${GEOM_ROOT} ] ; then
   echo "LD_LIBRARY_PATH" >> ${GEOM_ROOT}/setup.sh
 
   # Data egress if config.json in $PWD
-  if [ -x /usr/local/bin/mc -a -f ./config.json ] ; then
+  if [ -x ${MC} ] ; then
     if ping -c 1 -w 5 google.com > /dev/null ; then
-      /usr/local/bin/mc -C ./config.json cp "${FULL_FILE}" "${FULL_S3RW}"
+      if [ -n ${S3RW_ACCESS_KEY} -a -n ${S3RW_SECRET_KEY} ] ; then
+        ${MC} -C . config host add ${S3RW} ${S3URL} ${S3RW_ACCESS_KEY} ${S3RW_SECRET_KEY}
+        ${MC} -C . cp --disable-multipart "${FULL_FILE}" "${FULL_S3RW}"
+        ${MC} -C . config host remove ${S3RW}
+      else
+        echo "No S3 credentials."
+      fi
     else
       echo "No internet connection."
     fi
@@ -106,9 +119,15 @@ xenv -x /usr/local/Juggler.xenv \
 rootls -t "${RECO_FILE}"
 
 # Data egress if config.json in $PWD
-if [ -x /usr/local/bin/mc -a -f ./config.json ] ; then
+if [ -x ${MC} ] ; then
   if ping -c 1 -w 5 google.com > /dev/null ; then
-    /usr/local/bin/mc -C ./config.json cp "${RECO_FILE}" "${RECO_S3RW}"
+    if [ -n ${S3RW_ACCESS_KEY} -a -n ${S3RW_SECRET_KEY} ] ; then
+      ${MC} -C . config host add ${S3RW} ${S3URL} ${S3RW_ACCESS_KEY} ${S3RW_SECRET_KEY}
+      ${MC} -C . cp --disable-multipart "${RECO_FILE}" "${RECO_S3RW}"
+      ${MC} -C . config host remove ${S3RW}
+    else
+      echo "No S3 credentials."
+    fi
   else
     echo "No internet connection."
   fi
