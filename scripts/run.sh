@@ -47,15 +47,26 @@ S3RWDIR="${S3RW}/eictest/ATHENA"
 # Input file parsing
 BASENAME=$(basename ${INPUT_FILE} .steer)
 TAG="${BASENAME//_/\/}"
+mkdir -p   ${BASEDIR}/EVGEN/
+INPUT_S3RO=${S3RODIR}/EVGEN/SINGLE/${BASENAME}.steer
+INPUT_S3RO=${INPUT_S3RO//\/\//\/}
 
-# Create input file if not present
+# Retrieve input file if S3_ACCESS_KEY and S3_SECRET_KEY in environment
 if [ ! -f ${INPUT_FILE} ] ; then
-  if [[ ${BASENAME} =~ (.*)_(.*)_([0-9]+)to([0-9]+)deg ]] ; then
-    INPUT_FILE=$($(dirname ${0})/generate.sh ${BASH_REMATCH[1]} ${BASH_REMATCH[2]} ${BASH_REMATCH[3]} ${BASH_REMATCH[4]})
-    echo "Generated ${INPUT_FILE}"
-  else
-    echo "Error: Unable to generate input file."
-    exit 1
+  if [ -x ${MC} ] ; then
+    if ping -c 1 -w 5 google.com > /dev/null ; then
+      if [ -n ${S3_ACCESS_KEY} -a -n ${S3_SECRET_KEY} ] ; then
+        ${MC} -C . config host add ${S3RO} ${S3URL} ${S3_ACCESS_KEY} ${S3_SECRET_KEY}
+        ${MC} -C . cp --disable-multipart "${INPUT_S3RO}" "${INPUT_FILE}"
+        ${MC} -C . config host remove ${S3RO}
+      else
+        echo "No S3 credentials. Provide (readonly) S3 credentials."
+        exit
+      fi
+    else
+      echo "No internet connection. Pre-cache input file."
+      exit
+    fi
   fi
 fi
 
