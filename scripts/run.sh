@@ -96,6 +96,7 @@ if [ ! -f ${FULL_FILE} -o ! -d ${GEOM_ROOT} ] ; then
     --enableGun \
     --steeringFile ${INPUT_FILE} \
     --numberOfEvents ${EVENTS_PER_TASK} \
+    --part.minimalKineticEnergy 1*TeV \
     --compactFile ${COMPACT_FILE} \
     --outputFile ${FULL_FILE}
   rootls -t "${FULL_FILE}"
