@@ -46,7 +46,7 @@ S3RWDIR="${S3RW}/eictest/ATHENA"
 
 # Input file parsing
 BASENAME=$(basename ${INPUT_FILE} .steer)
-TAG="${BASENAME//_/\/}"
+TAG="${DETECTOR_VERSION}/${BASENAME//_/\/}"
 mkdir -p   ${BASEDIR}/EVGEN/
 INPUT_S3RO=${S3RODIR}/EVGEN/SINGLE/${BASENAME}.steer
 INPUT_S3RO=${INPUT_S3RO//\/\//\/}
