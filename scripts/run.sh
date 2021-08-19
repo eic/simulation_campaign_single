@@ -21,6 +21,10 @@ whoami
 pwd
 ls -al
 
+# Load container environment (include ${DETECTOR_VERSION})
+source /opt/detector/setup.sh
+echo "DETECTOR_VERSION=${DETECTOR_VERSION}"
+
 # Argument parsing
 # - input file
 INPUT_FILE=${1}
@@ -46,10 +50,11 @@ S3RWDIR="${S3RW}/eictest/ATHENA"
 
 # Input file parsing
 BASENAME=$(basename ${INPUT_FILE} .steer)
-TAG="${DETECTOR_VERSION}/${BASENAME//_/\/}"
+TAG="${BASENAME//_/\/}"
 mkdir -p   ${BASEDIR}/EVGEN/
 INPUT_S3RO=${S3RODIR}/EVGEN/SINGLE/${BASENAME}.steer
 INPUT_S3RO=${INPUT_S3RO//\/\//\/}
+TAG="${DETECTOR_VERSION}/${TAG}"
 
 # Retrieve input file if S3_ACCESS_KEY and S3_SECRET_KEY in environment
 if [ ! -f ${INPUT_FILE} ] ; then
@@ -85,9 +90,6 @@ COMPACT_FILE=/opt/detector/share/athena/athena.xml
 
 # Check for existing full simulation on local node
 if [ ! -f ${FULL_FILE} -o ! -d ${GEOM_ROOT} ] ; then
-  # Load container environment
-  source /opt/detector/setup.sh
-
   # Run simulation
   /usr/bin/time -v \
     npsim \
