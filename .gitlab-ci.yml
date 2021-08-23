@@ -26,4 +26,4 @@ run_pion_1GeV_3to50deg_0001:
     - mkdir -p EVGEN/SINGLE/
     - cp pi+_1GeV_3to50deg.steer EVGEN/SINGLE/CI_pi+_1GeV_3to50deg.steer
     - scripts/run.sh EVGEN/SINGLE/CI_pi+_1GeV_3to50deg.steer 100 1
-    - test -f RECO/master/SINGLE/CI_pi+/1GeV/3to50deg/CI_pi+_1GeV_3to50deg.0001.root
+    - test -f RECO/master/SINGLE/CI/pi+/1GeV/3to50deg/CI_pi+_1GeV_3to50deg.0001.root
