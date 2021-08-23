@@ -121,6 +121,9 @@ if [ ! -f ${FULL_FILE} ] ; then
   fi
 fi
 
+# Get calibrations (e.g. 'acadia-v1.0-alpha' will pull artifacts from 'acadia')
+${RECONSTRUCTION:-/opt/benchmarks/reconstruction_benchmarks}/bin/get_calibrations ${DETECTOR_VERSION/-*/}
+
 # Run reconstruction
 export JUGGLER_SIM_FILE="${FULL_FILE}"
 export JUGGLER_REC_FILE="${RECO_FILE}"
