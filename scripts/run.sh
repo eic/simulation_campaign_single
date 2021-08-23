@@ -56,10 +56,25 @@ INPUT_S3RO=${S3RODIR}/EVGEN/SINGLE/${BASENAME}.steer
 INPUT_S3RO=${INPUT_S3RO//\/\//\/}
 TAG="${DETECTOR_VERSION}/${TAG}"
 
+# Output file names
+mkdir -p ${BASEDIR}/LOG/SINGLE/${TAG}
+LOG_FILE=${BASEDIR}/LOG/SINGLE/${TAG}/${BASENAME}${TASK}.out
+mkdir -p  ${BASEDIR}/FULL/SINGLE/${TAG}
+FULL_FILE=${BASEDIR}/FULL/SINGLE/${TAG}/${BASENAME}${TASK}.root
+FULL_S3RW=${S3RWDIR}/FULL/SINGLE/${TAG}/${BASENAME}${TASK}.root
+FULL_S3RW=${FULL_S3RW//\/\//\/}
+mkdir -p  ${BASEDIR}/RECO/SINGLE/${TAG}
+RECO_FILE=${BASEDIR}/RECO/SINGLE/${TAG}/${BASENAME}${TASK}.root
+RECO_S3RW=${S3RWDIR}/RECO/SINGLE/${TAG}/${BASENAME}${TASK}.root
+RECO_S3RW=${RECO_S3RW//\/\//\/}
+
+# Start logging block
+{
+
 # Retrieve input file if S3_ACCESS_KEY and S3_SECRET_KEY in environment
 if [ ! -f ${INPUT_FILE} ] ; then
   if [ -x ${MC} ] ; then
-    if ping -c 1 -w 5 google.com > /dev/null ; then
+    if curl --connect-timeout 5 ${S3URL} > /dev/null ; then
       if [ -n ${S3_ACCESS_KEY} -a -n ${S3_SECRET_KEY} ] ; then
         ${MC} -C . config host add ${S3RO} ${S3URL} ${S3_ACCESS_KEY} ${S3_SECRET_KEY}
         ${MC} -C . cp --disable-multipart "${INPUT_S3RO}" "${INPUT_FILE}"
@@ -75,21 +90,8 @@ if [ ! -f ${INPUT_FILE} ] ; then
   fi
 fi
 
-# Output file names
-mkdir -p  ${BASEDIR}/FULL/SINGLE/${TAG}
-FULL_FILE=${BASEDIR}/FULL/SINGLE/${TAG}/${BASENAME}${TASK}.root
-mkdir -p  ${BASEDIR}/GEOM/SINGLE/${TAG}
-GEOM_ROOT=${BASEDIR}/GEOM/SINGLE/${TAG}/${BASENAME}${TASK}.geom
-mkdir -p  ${BASEDIR}/RECO/SINGLE/${TAG}
-RECO_FILE=${BASEDIR}/RECO/SINGLE/${TAG}/${BASENAME}${TASK}.root
-RECO_S3RW=${S3RWDIR}/RECO/SINGLE/${TAG}/${BASENAME}${TASK}.root
-RECO_S3RW=${RECO_S3RW//\/\//\/}
-
-# Detector description
-COMPACT_FILE=/opt/detector/share/athena/athena.xml
-
 # Check for existing full simulation on local node
-if [ ! -f ${FULL_FILE} -o ! -d ${GEOM_ROOT} ] ; then
+if [ ! -f ${FULL_FILE} ] ; then
   # Run simulation
   /usr/bin/time -v \
     npsim \
@@ -99,39 +101,45 @@ if [ ! -f ${FULL_FILE} -o ! -d ${GEOM_ROOT} ] ; then
     --steeringFile ${INPUT_FILE} \
     --numberOfEvents ${EVENTS_PER_TASK} \
     --part.minimalKineticEnergy 1*TeV \
-    --compactFile ${COMPACT_FILE} \
+    --compactFile ${DETECTOR_PATH}/${JUGGLER_DETECTOR}.xml \
     --outputFile ${FULL_FILE}
   rootls -t "${FULL_FILE}"
 
-  # Take snapshot of geometry and versions
-  mkdir -p ${GEOM_ROOT}
-  cp -r /opt/detector/* ${GEOM_ROOT}
-  eic-info > ${GEOM_ROOT}/eic-info.txt
-  echo "export LD_LIBRARY_PATH=${GEOM_ROOT}/lib:${LD_LIBRARY_PATH}" > ${GEOM_ROOT}/setup.sh
+  # Data egress if S3RW_ACCESS_KEY and S3RW_SECRET_KEY in environment
+  if [ -x ${MC} ] ; then
+    if curl --connect-timeout 5 ${S3URL} > /dev/null ; then
+      if [ -n ${S3RW_ACCESS_KEY} -a -n ${S3RW_SECRET_KEY} ] ; then
+        ${MC} -C . config host add ${S3RW} ${S3URL} ${S3RW_ACCESS_KEY} ${S3RW_SECRET_KEY}
+        ${MC} -C . cp --disable-multipart "${FULL_FILE}" "${FULL_S3RW}"
+        ${MC} -C . config host remove ${S3RW}
+      else
+        echo "No S3 credentials."
+      fi
+    else
+      echo "No internet connection."
+    fi
+  fi
 fi
-
-# Load snapshot environment
-source ${GEOM_ROOT}/setup.sh
 
 # Run reconstruction
 export JUGGLER_SIM_FILE="${FULL_FILE}"
 export JUGGLER_REC_FILE="${RECO_FILE}"
 export JUGGLER_N_EVENTS=2147483647
-export JUGGLER_DETECTOR=athena
-export DETECTOR_PATH="${GEOM_ROOT}/share/athena"
 /usr/bin/time -v \
-xenv -x /usr/local/Juggler.xenv \
   gaudirun.py /opt/benchmarks/reconstruction_benchmarks/benchmarks/full/options/full_reconstruction.py \
     || [ $? -eq 4 ]
 # FIXME why $? = 4
 rootls -t "${RECO_FILE}"
 
+} 2>&1 | tee ${LOG_FILE}
+
 # Data egress if S3RW_ACCESS_KEY and S3RW_SECRET_KEY in environment
 if [ -x ${MC} ] ; then
-  if ping -c 1 -w 5 google.com > /dev/null ; then
+  if curl --connect-timeout 5 ${S3URL} > /dev/null ; then
     if [ -n ${S3RW_ACCESS_KEY} -a -n ${S3RW_SECRET_KEY} ] ; then
       ${MC} -C . config host add ${S3RW} ${S3URL} ${S3RW_ACCESS_KEY} ${S3RW_SECRET_KEY}
       ${MC} -C . cp --disable-multipart "${RECO_FILE}" "${RECO_S3RW}"
+      ${MC} -C . cp --disable-multipart "${LOG_FILE}" "${LOG_S3RW}"
       ${MC} -C . config host remove ${S3RW}
     else
       echo "No S3 credentials."
@@ -144,4 +152,5 @@ fi
 # closeout
 ls -al ${FULL_FILE}
 ls -al ${RECO_FILE}
+ls -al ${LOG_FILE}
 date
