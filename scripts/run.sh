@@ -109,7 +109,7 @@ if [ ! -f ${FULL_FILE} ] ; then
   # Data egress if S3RW_ACCESS_KEY and S3RW_SECRET_KEY in environment
   if [ -x ${MC} ] ; then
     if curl --connect-timeout 5 ${S3URL} > /dev/null ; then
-      if [ -n ${S3RW_ACCESS_KEY} -a -n ${S3RW_SECRET_KEY} ] ; then
+      if [ -n ${S3RW_ACCESS_KEY:-} -a -n ${S3RW_SECRET_KEY:-} ] ; then
         ${MC} -C . config host add ${S3RW} ${S3URL} ${S3RW_ACCESS_KEY} ${S3RW_SECRET_KEY}
         ${MC} -C . cp --disable-multipart "${FULL_FILE}" "${FULL_S3RW}"
         ${MC} -C . config host remove ${S3RW}
@@ -140,7 +140,7 @@ rootls -t "${RECO_FILE}"
 # Data egress if S3RW_ACCESS_KEY and S3RW_SECRET_KEY in environment
 if [ -x ${MC} ] ; then
   if curl --connect-timeout 5 ${S3URL} > /dev/null ; then
-    if [ -n ${S3RW_ACCESS_KEY} -a -n ${S3RW_SECRET_KEY} ] ; then
+    if [ -n ${S3RW_ACCESS_KEY:-} -a -n ${S3RW_SECRET_KEY:-} ] ; then
       ${MC} -C . config host add ${S3RW} ${S3URL} ${S3RW_ACCESS_KEY} ${S3RW_SECRET_KEY}
       ${MC} -C . cp --disable-multipart "${RECO_FILE}" "${RECO_S3RW}"
       ${MC} -C . cp --disable-multipart "${LOG_FILE}" "${LOG_S3RW}"
