@@ -69,6 +69,24 @@ RECO_FILE=${BASEDIR}/RECO/${DETECTOR_VERSION}/SINGLE/${TAG}/${BASENAME}${TASK}.r
 RECO_S3RW=${S3RWDIR}/RECO/${DETECTOR_VERSION}/SINGLE/${TAG}/${BASENAME}${TASK}.root
 RECO_S3RW=${RECO_S3RW//\/\//\/}
 
+# Local temp dir
+if [ test -n "${SLURM_TMPDIR:-}" ] ; then
+  TMPDIR=${SLURM_TMPDIR}
+else
+  if [ test -d "/scratch/slurm/${SLURM_JOB_ID:-}" ] ; then
+    TMPDIR="/scratch/slurm/${SLURM_JOB_ID:-}"
+  else
+    TMPDIR=${TMPDIR:-/tmp}/${$}
+  fi
+fi
+echo "TMPDIR=${TMPDIR}"
+mkdir -p  ${TMPDIR}/FULL/${DETECTOR_VERSION}/SINGLE/${TAG}/
+FULL_TEMP=${TMPDIR}/FULL/${DETECTOR_VERSION}/SINGLE/${TAG}/${BASENAME}${TASK}.root
+mkdir -p  ${TMPDIR}/RECO/${DETECTOR_VERSION}/SINGLE/${TAG}/
+RECO_TEMP=${TMPDIR}/RECO/${DETECTOR_VERSION}/SINGLE/${TAG}/${BASENAME}${TASK}.root
+mkdir -p ${TMPDIR}/LOG/${DETECTOR_VERSION}/SINGLE/${TAG}/
+LOG_TEMP=${TMPDIR}/LOG/${DETECTOR_VERSION}/SINGLE/${TAG}/${BASENAME}${TASK}.out
+
 # Start logging block
 {
 
@@ -101,8 +119,9 @@ fi
   --numberOfEvents ${EVENTS_PER_TASK} \
   --part.minimalKineticEnergy 1*TeV \
   --compactFile ${DETECTOR_PATH}/${JUGGLER_DETECTOR}.xml \
-  --outputFile ${FULL_FILE}
-rootls -t "${FULL_FILE}"
+  --outputFile ${FULL_TEMP}
+rootls -t "${FULL_TEMP}"
+cp "${FULL_TEMP}" "${FULL_FILE}"
 
 # Data egress if S3RW_ACCESS_KEY and S3RW_SECRET_KEY in environment
 if [ -x ${MC} ] ; then
@@ -125,16 +144,18 @@ if [ ! -d config ] ; then
 fi
 
 # Run reconstruction
-export JUGGLER_SIM_FILE="${FULL_FILE}"
-export JUGGLER_REC_FILE="${RECO_FILE}"
+export JUGGLER_SIM_FILE="${FULL_TEMP}"
+export JUGGLER_REC_FILE="${RECO_TEMP}"
 export JUGGLER_N_EVENTS=2147483647
 /usr/bin/time -v \
   gaudirun.py /opt/benchmarks/reconstruction_benchmarks/benchmarks/full/options/full_reconstruction.py \
     || [ $? -eq 4 ]
 # FIXME why $? = 4
-rootls -t "${RECO_FILE}"
+rootls -t "${RECO_TEMP}"
+cp "${RECO_TEMP}" "${RECO_FILE}"
 
-} 2>&1 | tee ${LOG_FILE}
+} 2>&1 | tee "${LOG_TEMP}"
+cp "${LOG_TEMP}" "${LOG_FILE}"
 
 # Data egress if S3RW_ACCESS_KEY and S3RW_SECRET_KEY in environment
 if [ -x ${MC} ] ; then
@@ -153,10 +174,10 @@ if [ -x ${MC} ] ; then
 fi
 
 # closeout
-ls -al ${FULL_FILE}
-ls -al ${RECO_FILE}
-ls -al ${LOG_FILE}
+rm -f "${INPUT_TEMP}"
+rm -f "${FULL_TEMP}"
+rm -f "${RECO_TEMP}"
+ls -al "${FULL_FILE}"
+ls -al "${RECO_FILE}"
+ls -al "${LOG_FILE}"
 date
-
-# remove full file
-rm ${FULL_FILE}
