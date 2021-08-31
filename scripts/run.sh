@@ -113,6 +113,8 @@ fi
 /usr/bin/time -v \
   npsim \
   --runType run \
+  --random.seed 1 \
+  --random.enableEventSeed \
   --printLevel WARNING \
   --enableGun \
   --steeringFile ${INPUT_FILE} \
