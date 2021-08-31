@@ -113,7 +113,7 @@ fi
 /usr/bin/time -v \
   npsim \
   --runType run \
-  --random.seed 1 \
+  --random.seed ${3:-1} \
   --random.enableEventSeed \
   --printLevel WARNING \
   --enableGun \
