@@ -70,10 +70,10 @@ RECO_S3RW=${S3RWDIR}/RECO/${DETECTOR_VERSION}/SINGLE/${TAG}/${BASENAME}${TASK}.r
 RECO_S3RW=${RECO_S3RW//\/\//\/}
 
 # Local temp dir
-if [ test -n "${SLURM_TMPDIR:-}" ] ; then
+if [ -n "${SLURM_TMPDIR:-}" ] ; then
   TMPDIR=${SLURM_TMPDIR}
 else
-  if [ test -d "/scratch/slurm/${SLURM_JOB_ID:-}" ] ; then
+  if [ -d "/scratch/slurm/${SLURM_JOB_ID:-}" ] ; then
     TMPDIR="/scratch/slurm/${SLURM_JOB_ID:-}"
   else
     TMPDIR=${TMPDIR:-/tmp}/${$}
