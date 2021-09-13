@@ -123,7 +123,7 @@ fi
   --compactFile ${DETECTOR_PATH}/${JUGGLER_DETECTOR}.xml \
   --outputFile ${FULL_TEMP}
 rootls -t "${FULL_TEMP}"
-if [ -n "${COPYTEMP:-}" ] ; then
+if [ -n "${COPYFULL:-}" ] ; then
   cp "${FULL_TEMP}" "${FULL_FILE}"
 fi
 
@@ -156,12 +156,12 @@ export JUGGLER_N_EVENTS=2147483647
     || [ $? -eq 4 ]
 # FIXME why $? = 4
 rootls -t "${RECO_TEMP}"
-if [ -n "${COPYTEMP:-}" ] ; then
+if [ -n "${COPYRECO:-}" ] ; then
   cp "${RECO_TEMP}" "${RECO_FILE}"
 }
 
 } 2>&1 | tee "${LOG_TEMP}"
-if [ -n "${COPYTEMP:-}" ] ; then
+if [ -n "${COPYLOG:-}" ] ; then
   cp "${LOG_TEMP}" "${LOG_FILE}"
 }
 
@@ -185,9 +185,13 @@ fi
 rm -f "${INPUT_TEMP}"
 rm -f "${FULL_TEMP}"
 rm -f "${RECO_TEMP}"
-if [ -n "${COPYTEMP:-}" ] ; then
+if [ -n "${COPYFULL:-}" ] ; then
   ls -al "${FULL_FILE}"
+fi
+if [ -n "${COPYRECO:-}" ] ; then
   ls -al "${RECO_FILE}"
+fi
+if [ -n "${COPYLOG:-}" ] ; then
   ls -al "${LOG_FILE}"
 fi
 date
