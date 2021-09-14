@@ -123,7 +123,7 @@ fi
   --compactFile ${DETECTOR_PATH}/${JUGGLER_DETECTOR}.xml \
   --outputFile ${FULL_TEMP}
 rootls -t "${FULL_TEMP}"
-if [ -n "${COPYFULL:-}" ] ; then
+if [ "${COPYFULL:-false}" == "true" ] ; then
   cp "${FULL_TEMP}" "${FULL_FILE}"
 fi
 
@@ -156,14 +156,14 @@ export JUGGLER_N_EVENTS=2147483647
     || [ $? -eq 4 ]
 # FIXME why $? = 4
 rootls -t "${RECO_TEMP}"
-if [ -n "${COPYRECO:-}" ] ; then
+if [ "${COPYRECO:-false}" == "true" ] ; then
   cp "${RECO_TEMP}" "${RECO_FILE}"
-}
+fi
 
 } 2>&1 | tee "${LOG_TEMP}"
-if [ -n "${COPYLOG:-}" ] ; then
+if [ "${COPYLOG:-false}" == "true" ] ; then
   cp "${LOG_TEMP}" "${LOG_FILE}"
-}
+fi
 
 # Data egress if S3RW_ACCESS_KEY and S3RW_SECRET_KEY in environment
 if [ -x ${MC} ] ; then
@@ -182,16 +182,15 @@ if [ -x ${MC} ] ; then
 fi
 
 # closeout
-rm -f "${INPUT_TEMP}"
 rm -f "${FULL_TEMP}"
 rm -f "${RECO_TEMP}"
-if [ -n "${COPYFULL:-}" ] ; then
+if [ "${COPYFULL:-false}" == "true" ] ; then
   ls -al "${FULL_FILE}"
 fi
-if [ -n "${COPYRECO:-}" ] ; then
+if [ "${COPYRECO:-false}" == "true" ] ; then
   ls -al "${RECO_FILE}"
 fi
-if [ -n "${COPYLOG:-}" ] ; then
+if [ "${COPYLOG:-false}" == "true" ] ; then
   ls -al "${LOG_FILE}"
 fi
 date
