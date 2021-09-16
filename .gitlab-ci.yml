@@ -12,6 +12,8 @@ generate:
 
 run_electron_1GeV_45to135deg:
   stage: test
+  tags:
+    - s3
   script:
     - scripts/generate.sh e- 1*GeV 45 135
     - mkdir -p EVGEN/SINGLE/
@@ -21,6 +23,8 @@ run_electron_1GeV_45to135deg:
 
 run_pion_1GeV_3to50deg_0001:
   stage: test
+  tags:
+    - s3
   script:
     - scripts/generate.sh pi+ 1*GeV 3 50
     - mkdir -p EVGEN/SINGLE/
