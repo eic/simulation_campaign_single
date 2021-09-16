@@ -124,6 +124,7 @@ fi
   --outputFile ${FULL_TEMP}
 rootls -t "${FULL_TEMP}"
 if [ "${COPYFULL:-false}" == "true" ] ; then
+  echo "Copying ${FULL_TEMP} to ${FULL_FILE}"
   cp "${FULL_TEMP}" "${FULL_FILE}"
 fi
 
@@ -157,11 +158,13 @@ export JUGGLER_N_EVENTS=2147483647
 # FIXME why $? = 4
 rootls -t "${RECO_TEMP}"
 if [ "${COPYRECO:-false}" == "true" ] ; then
+  echo "Copying ${RECO_TEMP} to ${RECO_FILE}"
   cp "${RECO_TEMP}" "${RECO_FILE}"
 fi
 
 } 2>&1 | tee "${LOG_TEMP}"
 if [ "${COPYLOG:-false}" == "true" ] ; then
+  echo "Copying ${LOG_TEMP} to ${LOG_FILE}"
   cp "${LOG_TEMP}" "${LOG_FILE}"
 fi
 
