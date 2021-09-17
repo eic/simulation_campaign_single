@@ -12,22 +12,18 @@ generate:
 
 run_electron_1GeV_45to135deg:
   stage: test
-  tags:
-    - s3
   script:
     - scripts/generate.sh e- 1*GeV 45 135
     - mkdir -p EVGEN/SINGLE/
     - cp e-_1GeV_45to135deg.steer EVGEN/SINGLE/CI_e-_1GeV_45to135deg.steer
-    - scripts/run.sh EVGEN/SINGLE/CI_e-_1GeV_45to135deg.steer 100
+    - COPYRECO=true scripts/run.sh EVGEN/SINGLE/CI_e-_1GeV_45to135deg.steer 100
     - test -f RECO/master/SINGLE/CI/e-/1GeV/45to135deg/CI_e-_1GeV_45to135deg.root
 
 run_pion_1GeV_3to50deg_0001:
   stage: test
-  tags:
-    - s3
   script:
     - scripts/generate.sh pi+ 1*GeV 3 50
     - mkdir -p EVGEN/SINGLE/
     - cp pi+_1GeV_3to50deg.steer EVGEN/SINGLE/CI_pi+_1GeV_3to50deg.steer
-    - scripts/run.sh EVGEN/SINGLE/CI_pi+_1GeV_3to50deg.steer 100 1
+    - COPYRECO=true scripts/run.sh EVGEN/SINGLE/CI_pi+_1GeV_3to50deg.steer 100 1
     - test -f RECO/master/SINGLE/CI/pi+/1GeV/3to50deg/CI_pi+_1GeV_3to50deg.0001.root
