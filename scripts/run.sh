@@ -33,8 +33,10 @@ EVENTS_PER_TASK=${2:-10000}
 # - current chunk
 if [ ${#} -lt 3 ] ; then
   TASK=""
+  SKIP_N_EVENTS=0
 else
   TASK=$(printf ".%04d" ${3})
+  SKIP_N_EVENTS=0
 fi
 
 # Output location
@@ -48,30 +50,17 @@ S3RW="S3rw"
 S3RODIR="${S3RO}/eictest/ATHENA"
 S3RWDIR="${S3RW}/eictest/ATHENA"
 
-# Input file parsing
-BASENAME=$(basename ${INPUT_FILE} .steer)
-TAG="${BASENAME//_/\/}"
-mkdir -p   ${BASEDIR}/EVGEN/
-INPUT_S3RO=${S3RODIR}/EVGEN/SINGLE/${BASENAME}.steer
-INPUT_S3RO=${INPUT_S3RO//\/\//\/}
-
-# Output file names
-mkdir -p ${BASEDIR}/LOG/${DETECTOR_VERSION}/SINGLE/${TAG}
-LOG_FILE=${BASEDIR}/LOG/${DETECTOR_VERSION}/SINGLE/${TAG}/${BASENAME}${TASK}.out
-LOG_S3RW=${S3RWDIR}/LOG/${DETECTOR_VERSION}/SINGLE/${TAG}/${BASENAME}${TASK}.out
-LOG_S3RW=${LOG_S3RW//\/\//\/}
-mkdir -p  ${BASEDIR}/FULL/${DETECTOR_VERSION}/SINGLE/${TAG}
-FULL_FILE=${BASEDIR}/FULL/${DETECTOR_VERSION}/SINGLE/${TAG}/${BASENAME}${TASK}.root
-FULL_S3RW=${S3RWDIR}/FULL/${DETECTOR_VERSION}/SINGLE/${TAG}/${BASENAME}${TASK}.root
-FULL_S3RW=${FULL_S3RW//\/\//\/}
-mkdir -p  ${BASEDIR}/RECO/${DETECTOR_VERSION}/SINGLE/${TAG}
-RECO_FILE=${BASEDIR}/RECO/${DETECTOR_VERSION}/SINGLE/${TAG}/${BASENAME}${TASK}.root
-RECO_S3RW=${S3RWDIR}/RECO/${DETECTOR_VERSION}/SINGLE/${TAG}/${BASENAME}${TASK}.root
-RECO_S3RW=${RECO_S3RW//\/\//\/}
-
 # Local temp dir
+echo "SLURM_TMPDIR=${SLURM_TMPDIR:-}"
+echo "SLURM_JOB_ID=${SLURM_JOB_ID:-}"
+echo "SLURM_ARRAY_JOB_ID=${SLURM_ARRAY_JOB_ID:-}"
+echo "SLURM_ARRAY_TASK_ID=${SLURM_ARRAY_TASK_ID:-}"
+echo "_CONDOR_SCRATCH_DIR=${_CONDOR_SCRATCH_DIR:-}"
+echo "OSG_WN_TMP=${OSG_WN_TMP:-}"
 if [ -n "${SLURM_TMPDIR:-}" ] ; then
   TMPDIR=${SLURM_TMPDIR}
+elif [ -n "${_CONDOR_SCRATCH_DIR:-}" ] ; then
+  TMPDIR=${_CONDOR_SCRATCH_DIR}
 else
   if [ -d "/scratch/slurm/${SLURM_JOB_ID:-}" ] ; then
     TMPDIR="/scratch/slurm/${SLURM_JOB_ID:-}"
@@ -80,15 +69,38 @@ else
   fi
 fi
 echo "TMPDIR=${TMPDIR}"
-mkdir -p  ${TMPDIR}/FULL/${DETECTOR_VERSION}/SINGLE/${TAG}/
-FULL_TEMP=${TMPDIR}/FULL/${DETECTOR_VERSION}/SINGLE/${TAG}/${BASENAME}${TASK}.root
-mkdir -p  ${TMPDIR}/RECO/${DETECTOR_VERSION}/SINGLE/${TAG}/
-RECO_TEMP=${TMPDIR}/RECO/${DETECTOR_VERSION}/SINGLE/${TAG}/${BASENAME}${TASK}.root
-mkdir -p ${TMPDIR}/LOG/${DETECTOR_VERSION}/SINGLE/${TAG}/
-LOG_TEMP=${TMPDIR}/LOG/${DETECTOR_VERSION}/SINGLE/${TAG}/${BASENAME}${TASK}.out
+
+# Input file parsing
+BASENAME=$(basename ${INPUT_FILE} .steer)
+TASKNAME=${BASENAME}${TASK}
+TAG="${BASENAME//_/\/}"
+mkdir -p   ${BASEDIR}/EVGEN/
+INPUT_S3RO=${S3RODIR}/EVGEN/SINGLE/
+INPUT_S3RO=${INPUT_S3RO//\/\//\/}
+
+# Output file names
+LOG_DIR=${BASEDIR}/LOG/${DETECTOR_VERSION}/SINGLE/${TAG}/
+LOG_TEMP=${TMPDIR}/LOG/${DETECTOR_VERSION}/SINGLE/${TAG}/
+LOG_S3RW=${S3RWDIR}/LOG/${DETECTOR_VERSION}/SINGLE/${TAG}/
+LOG_S3RW=${LOG_S3RW//\/\//\/}
+mkdir -p ${LOG_DIR} ${LOG_TEMP}
+#
+FULL_DIR=${BASEDIR}/FULL/${DETECTOR_VERSION}/SINGLE/${TAG}/
+FULL_TEMP=${TMPDIR}/FULL/${DETECTOR_VERSION}/SINGLE/${TAG}/
+FULL_S3RW=${S3RWDIR}/FULL/${DETECTOR_VERSION}/SINGLE/${TAG}/
+FULL_S3RW=${FULL_S3RW//\/\//\/}
+mkdir -p ${FULL_DIR} ${FULL_TEMP}
+#
+RECO_DIR=${BASEDIR}/RECO/${DETECTOR_VERSION}/SINGLE/${TAG}/
+RECO_TEMP=${TMPDIR}/RECO/${DETECTOR_VERSION}/SINGLE/${TAG}/
+RECO_S3RW=${S3RWDIR}/RECO/${DETECTOR_VERSION}/SINGLE/${TAG}/
+RECO_S3RW=${RECO_S3RW//\/\//\/}
+mkdir -p ${RECO_DIR} ${RECO_TEMP}
+
 
 # Start logging block
 {
+date
 
 # Retrieve input file if S3_ACCESS_KEY and S3_SECRET_KEY in environment
 if [ ! -f ${INPUT_FILE} ] ; then
@@ -96,7 +108,7 @@ if [ ! -f ${INPUT_FILE} ] ; then
     if curl --connect-timeout 5 ${S3URL} > /dev/null ; then
       if [ -n "${S3_ACCESS_KEY:-}" -a -n "${S3_SECRET_KEY:-}" ] ; then
         ${MC} -C . config host add ${S3RO} ${S3URL} ${S3_ACCESS_KEY} ${S3_SECRET_KEY}
-        ${MC} -C . cp --disable-multipart "${INPUT_S3RO}" "${INPUT_FILE}"
+        ${MC} -C . cp --disable-multipart ${INPUT_S3RO}/${BASENAME}.steer ${INPUT_DIR}
         ${MC} -C . config host remove ${S3RO}
       else
         echo "No S3 credentials. Provide (readonly) S3 credentials."
@@ -121,19 +133,16 @@ fi
   --numberOfEvents ${EVENTS_PER_TASK} \
   --part.minimalKineticEnergy 1*TeV \
   --compactFile ${DETECTOR_PATH}/${JUGGLER_DETECTOR}.xml \
-  --outputFile ${FULL_TEMP}
-rootls -t "${FULL_TEMP}"
-if [ "${COPYFULL:-false}" == "true" ] ; then
-  echo "Copying ${FULL_TEMP} to ${FULL_FILE}"
-  cp "${FULL_TEMP}" "${FULL_FILE}"
-fi
+  --outputFile ${FULL_TEMP}/${TASKNAME}.root
+ls -al ${FULL_TEMP}/${TASKNAME}.root
+rootls -t ${FULL_TEMP}/${TASKNAME}.root
 
 # Data egress if S3RW_ACCESS_KEY and S3RW_SECRET_KEY in environment
 if [ -x ${MC} ] ; then
   if curl --connect-timeout 5 ${S3URL} > /dev/null ; then
     if [ -n "${S3RW_ACCESS_KEY:-}" -a -n "${S3RW_SECRET_KEY:-}" ] ; then
       ${MC} -C . config host add ${S3RW} ${S3URL} ${S3RW_ACCESS_KEY} ${S3RW_SECRET_KEY}
-      ${MC} -C . cp --disable-multipart "${FULL_TEMP}" "${FULL_S3RW}"
+      ${MC} -C . cp --disable-multipart ${FULL_TEMP}/${TASKNAME}.root ${FULL_S3RW}
       ${MC} -C . config host remove ${S3RW}
     else
       echo "No S3 credentials."
@@ -141,6 +150,11 @@ if [ -x ${MC} ] ; then
   else
     echo "No internet connection."
   fi
+fi
+# Data egress to directory
+if [ "${COPYFULL:-false}" == "true" ] ; then
+  cp ${FULL_TEMP}/${TASKNAME}.root ${FULL_DIR}
+  ls -al ${FULL_DIR}/${TASKNAME}.root
 fi
 
 # Get calibrations (e.g. 'acadia-v1.0-alpha' will pull artifacts from 'acadia')
@@ -149,32 +163,32 @@ if [ ! -d config ] ; then
 fi
 
 # Run reconstruction
-export JUGGLER_SIM_FILE="${FULL_TEMP}"
-export JUGGLER_REC_FILE="${RECO_TEMP}"
+date
 export JUGGLER_N_EVENTS=2147483647
-/usr/bin/time -v \
-  gaudirun.py ${RECONSTRUCTION:-/opt/benchmarks/physics_benchmarks/options/reconstruction.py} \
+export JUGGLER_SIM_FILE="${FULL_TEMP}/${TASKNAME}.root"
+for rec in ${RECONSTRUCTION:-/opt/benchmarks/physics_benchmarks/options}/*.py ; do
+  unset tag
+  [[ $(basename ${rec} .py) =~ (.*)\.(.*) ]] && tag=".${BASH_REMATCH[2]}"
+  export JUGGLER_REC_FILE="${RECO_TEMP}/${TASKNAME}${tag:-}.root"
+  /usr/bin/time -v \
+    gaudirun.py ${rec} \
     || [ $? -eq 4 ]
-# FIXME why $? = 4
-rootls -t "${RECO_TEMP}"
-if [ "${COPYRECO:-false}" == "true" ] ; then
-  echo "Copying ${RECO_TEMP} to ${RECO_FILE}"
-  cp "${RECO_TEMP}" "${RECO_FILE}"
-fi
+  # FIXME why $? = 4
+  ls -al ${JUGGLER_REC_FILE}
+  rootls -t ${JUGGLER_REC_FILE}
+done
+rm -f ${FULL_TEMP}/${TASKNAME}.root
 
-} 2>&1 | tee "${LOG_TEMP}"
-if [ "${COPYLOG:-false}" == "true" ] ; then
-  echo "Copying ${LOG_TEMP} to ${LOG_FILE}"
-  cp "${LOG_TEMP}" "${LOG_FILE}"
-fi
+} 2>&1 | tee ${LOG_TEMP}/${TASKNAME}.out
+ls -al ${LOG_TEMP}/${TASKNAME}.out
 
 # Data egress if S3RW_ACCESS_KEY and S3RW_SECRET_KEY in environment
 if [ -x ${MC} ] ; then
   if curl --connect-timeout 5 ${S3URL} > /dev/null ; then
     if [ -n "${S3RW_ACCESS_KEY:-}" -a -n "${S3RW_SECRET_KEY:-}" ] ; then
       ${MC} -C . config host add ${S3RW} ${S3URL} ${S3RW_ACCESS_KEY} ${S3RW_SECRET_KEY}
-      ${MC} -C . cp --disable-multipart "${RECO_TEMP}" "${RECO_S3RW}"
-      ${MC} -C . cp --disable-multipart "${LOG_TEMP}" "${LOG_S3RW}"
+      ${MC} -C . cp --disable-multipart ${RECO_TEMP}/${TASKNAME}*.root ${RECO_S3RW}
+      ${MC} -C . cp --disable-multipart ${LOG_TEMP}/${TASKNAME}.out ${LOG_S3RW}
       ${MC} -C . config host remove ${S3RW}
     else
       echo "No S3 credentials."
@@ -183,17 +197,16 @@ if [ -x ${MC} ] ; then
     echo "No internet connection."
   fi
 fi
-
-# closeout
-rm -f "${FULL_TEMP}"
-rm -f "${RECO_TEMP}"
-if [ "${COPYFULL:-false}" == "true" ] ; then
-  ls -al "${FULL_FILE}"
-fi
+# Data egress to directory
 if [ "${COPYRECO:-false}" == "true" ] ; then
-  ls -al "${RECO_FILE}"
+  cp ${RECO_TEMP}/${TASKNAME}*.root ${RECO_DIR}
+  ls -al ${RECO_DIR}/${TASKNAME}*.root
 fi
 if [ "${COPYLOG:-false}" == "true" ] ; then
-  ls -al "${LOG_FILE}"
+  cp ${LOG_TEMP}/${TASKNAME}.out ${LOG_DIR}
+  ls -al ${LOG_DIR}/${TASKNAME}.out
 fi
+rm -f ${RECO_TEMP}/${TASKNAME}*.root
+
+# closeout
 date
