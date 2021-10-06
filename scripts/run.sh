@@ -71,7 +71,7 @@ fi
 echo "TMPDIR=${TMPDIR}"
 
 # Input file parsing
-BASENAME=$(basename ${INPUT_FILE} .hepmc)
+BASENAME=$(basename ${INPUT_FILE} .steer)
 TASKNAME=${BASENAME}${TASK}
 INPUT_DIR=$(dirname $(realpath --canonicalize-missing --relative-to=${BASEDIR} ${INPUT_FILE}))/
 # - file.hepmc              -> TAG="", and avoid double // in S3 location
