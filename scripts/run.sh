@@ -71,29 +71,43 @@ fi
 echo "TMPDIR=${TMPDIR}"
 
 # Input file parsing
-BASENAME=$(basename ${INPUT_FILE} .steer)
+BASENAME=$(basename ${INPUT_FILE} .hepmc)
 TASKNAME=${BASENAME}${TASK}
-TAG="${BASENAME//_/\/}"
-mkdir -p   ${BASEDIR}/EVGEN/
-INPUT_S3RO=${S3RODIR}/EVGEN/SINGLE/
+INPUT_DIR=$(dirname $(realpath --canonicalize-missing --relative-to=${BASEDIR} ${INPUT_FILE}))/
+# - file.hepmc              -> TAG="", and avoid double // in S3 location
+# - EVGEN/file.hepmc        -> TAG="", and avoid double // in S3 location
+# - EVGEN/DIS/file.hepmc    -> TAG="DIS"
+# - EVGEN/DIS/NC/file.hepmc -> TAG="DIS/NC"
+# - ../file.hepmc           -> error
+if [ ! "${INPUT_DIR/\.\.\//}" = "${INPUT_DIR}" ] ; then
+  echo "Error: Input file must be below current directory."
+  exit
+fi
+INPUT_PREFIX=${INPUT_DIR/\/*/}
+TAG=${INPUT_DIR/${INPUT_PREFIX}\//}
+INPUT_DIR=${BASEDIR}/EVGEN/${TAG}
+INPUT_TEMP=${TMPDIR}/EVGEN/${TAG}/
+mkdir -p ${INPUT_DIR} ${INPUT_TEMP}
+INPUT_S3RO=${S3RODIR}/EVGEN/${TAG}/
 INPUT_S3RO=${INPUT_S3RO//\/\//\/}
+TAG=${DETECTOR_VERSION}/${TAG}
 
 # Output file names
-LOG_DIR=${BASEDIR}/LOG/${DETECTOR_VERSION}/SINGLE/${TAG}/
-LOG_TEMP=${TMPDIR}/LOG/${DETECTOR_VERSION}/SINGLE/${TAG}/
-LOG_S3RW=${S3RWDIR}/LOG/${DETECTOR_VERSION}/SINGLE/${TAG}/
+LOG_DIR=${BASEDIR}/LOG/${TAG}/
+LOG_TEMP=${TMPDIR}/LOG/${TAG}/
+LOG_S3RW=${S3RWDIR}/LOG/${TAG}/
 LOG_S3RW=${LOG_S3RW//\/\//\/}
 mkdir -p ${LOG_DIR} ${LOG_TEMP}
 #
-FULL_DIR=${BASEDIR}/FULL/${DETECTOR_VERSION}/SINGLE/${TAG}/
-FULL_TEMP=${TMPDIR}/FULL/${DETECTOR_VERSION}/SINGLE/${TAG}/
-FULL_S3RW=${S3RWDIR}/FULL/${DETECTOR_VERSION}/SINGLE/${TAG}/
+FULL_DIR=${BASEDIR}/FULL/${TAG}/
+FULL_TEMP=${TMPDIR}/FULL/${TAG}/
+FULL_S3RW=${S3RWDIR}/FULL/${TAG}/
 FULL_S3RW=${FULL_S3RW//\/\//\/}
 mkdir -p ${FULL_DIR} ${FULL_TEMP}
 #
-RECO_DIR=${BASEDIR}/RECO/${DETECTOR_VERSION}/SINGLE/${TAG}/
-RECO_TEMP=${TMPDIR}/RECO/${DETECTOR_VERSION}/SINGLE/${TAG}/
-RECO_S3RW=${S3RWDIR}/RECO/${DETECTOR_VERSION}/SINGLE/${TAG}/
+RECO_DIR=${BASEDIR}/RECO/${TAG}/
+RECO_TEMP=${TMPDIR}/RECO/${TAG}/
+RECO_S3RW=${S3RWDIR}/RECO/${TAG}/
 RECO_S3RW=${RECO_S3RW//\/\//\/}
 mkdir -p ${RECO_DIR} ${RECO_TEMP}
 
