@@ -36,7 +36,7 @@ run_pion_1GeV_3to50deg_0001:
 jug_xl:master:
   stage: deploy
   rules:
-    - if: '$CI_COMMIT_BRANCH == "master" && $CI_SERVER_HOST == "eicweb.phy.anl.gov"'
+    - if: '$CI_COMMIT_BRANCH == "main" && $CI_SERVER_HOST == "eicweb.phy.anl.gov"'
       when: on_success
     - when: never
   needs:
