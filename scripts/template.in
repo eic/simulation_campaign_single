@@ -1,7 +1,6 @@
 from DDSim.DD4hepSimulation import DD4hepSimulation
 from g4units import mm, GeV, MeV, degree
 SIM = DD4hepSimulation()
-
 SIM.gun.energy = %ENERGY%
 SIM.gun.particle = "%PARTICLE%"
 SIM.gun.position = (0.0, 0.0, 0.0)
@@ -9,5 +8,3 @@ SIM.gun.direction = (0.0, 0.0, 1.0)
 SIM.gun.distribution = "cos(theta)"
 SIM.gun.thetaMin = %MINTHETA%*degree
 SIM.gun.thetaMax = %MAXTHETA%*degree
-
-SIM.part.minimalKineticEnergy = 100.0*MeV
