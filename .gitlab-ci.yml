@@ -20,7 +20,7 @@ generate:
   parallel:
     matrix:
       - TAG:
-        - "nightly"
+        - "latest"
         - "testing"
         - "v4.0-acadia-stable"
   image: eicweb.phy.anl.gov:4567/eic/juggler/juggler:${TAG}
