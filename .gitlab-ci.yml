@@ -20,9 +20,10 @@ generate:
   parallel:
     matrix:
       - TAG:
-        - "latest"
+        - "nightly"
+        - "testing"
         - "v4.0-acadia-stable"
-  image: eicweb.phy.anl.gov:4567/eic/juggler/juggler:${TAG}
+  image: eicweb.phy.anl.gov:4567/eic/juggler/jug_xl:${TAG}
 
 run_electron_1GeV_45to135deg:
   extends: .test
