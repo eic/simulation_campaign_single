@@ -15,8 +15,17 @@ generate:
     - scripts/generate.sh eta_prime 1*GeV && test -f etaprime_1GeV_45to135deg.steer
     - scripts/generate.sh anti_nu_mu 1*GeV && test -f antinumu_1GeV_45to135deg.steer
 
-run_electron_1GeV_45to135deg:
+.test:
   stage: test
+  parallel:
+    matrix:
+      - TAG:
+        - "latest"
+        - "v4.0-acadia-stable"
+  image: eicweb.phy.anl.gov:4567/eic/juggler/juggler:${TAG}
+
+run_electron_1GeV_45to135deg:
+  extends: .test
   script:
     - scripts/generate.sh e- 1*GeV 45 135
     - mkdir -p EVGEN/SINGLE/CI/e-/1GeV/45to135deg
@@ -25,7 +34,7 @@ run_electron_1GeV_45to135deg:
     - test -f RECO/master/SINGLE/CI/e-/1GeV/45to135deg/e-_1GeV_45to135deg.root
 
 run_pion_1GeV_3to50deg_0001:
-  stage: test
+  extends: .test
   script:
     - scripts/generate.sh pi+ 1*GeV 3 50
     - mkdir -p EVGEN/SINGLE/CI/pi+/1GeV/3to50deg
