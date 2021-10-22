@@ -161,7 +161,6 @@ fi
   --compactFile ${DETECTOR_PATH}/${JUGGLER_DETECTOR}.xml \
   --outputFile ${FULL_TEMP}/${TASKNAME}.root
 ls -al ${FULL_TEMP}/${TASKNAME}.root
-rootls -t ${FULL_TEMP}/${TASKNAME}.root
 
 # Data egress if S3RW_ACCESS_KEY and S3RW_SECRET_KEY in environment
 if [ -x ${MC} ] ; then
@@ -202,7 +201,6 @@ for rec in ${RECONSTRUCTION:-/opt/benchmarks/physics_benchmarks/options}/*.py ; 
     || [ $? -eq 4 ]
   # FIXME why $? = 4
   ls -al ${JUGGLER_REC_FILE}
-  rootls -t ${JUGGLER_REC_FILE}
 done
 ls -al ${RECO_TEMP}/${TASKNAME}*.root
 rm -f ${FULL_TEMP}/${TASKNAME}.root
