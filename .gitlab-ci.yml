@@ -32,7 +32,7 @@ run_electron_1GeV_45to135deg:
     - mkdir -p EVGEN/SINGLE/CI/e-/1GeV/45to135deg
     - cp e-_1GeV_45to135deg.steer EVGEN/SINGLE/CI/e-/1GeV/45to135deg/e-_1GeV_45to135deg.steer
     - COPYRECO=true scripts/run.sh EVGEN/SINGLE/CI/e-/1GeV/45to135deg/e-_1GeV_45to135deg.steer 100
-    - test -f RECO/master/SINGLE/CI/e-/1GeV/45to135deg/e-_1GeV_45to135deg.root
+    - test -f RECO/*/SINGLE/CI/e-/1GeV/45to135deg/e-_1GeV_45to135deg.root
 
 run_pion_1GeV_3to50deg_0001:
   extends: .test
@@ -41,7 +41,7 @@ run_pion_1GeV_3to50deg_0001:
     - mkdir -p EVGEN/SINGLE/CI/pi+/1GeV/3to50deg
     - cp pi+_1GeV_3to50deg.steer EVGEN/SINGLE/CI/pi+/1GeV/3to50deg/pi+_1GeV_3to50deg.steer
     - COPYRECO=true scripts/run.sh EVGEN/SINGLE/CI/pi+/1GeV/3to50deg/pi+_1GeV_3to50deg.steer 100 1
-    - test -f RECO/master/SINGLE/CI/pi+/1GeV/3to50deg/pi+_1GeV_3to50deg.0001.root
+    - test -f RECO/*/SINGLE/CI/pi+/1GeV/3to50deg/pi+_1GeV_3to50deg.0001.root
 
 jug_xl:master:
   stage: deploy
