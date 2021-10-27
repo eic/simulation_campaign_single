@@ -128,6 +128,11 @@ fi
 {
 date
 
+# Test reconstruction before simulation
+for rec in ${RECONSTRUCTION:-/opt/benchmarks/physics_benchmarks/options}/*.py ; do
+  python ${rec}
+done
+
 # Retrieve input file if S3_ACCESS_KEY and S3_SECRET_KEY in environment
 if [ ! -f ${INPUT_FILE} ] ; then
   if [ -x ${MC} ] ; then
