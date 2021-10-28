@@ -50,7 +50,7 @@ function retry {
   local max=5
   local delay=15
   while [[ $n -lt $max ]] ; do
-    ((n++))
+    n=$((n+1))
     "$@"
     s=$?
     [ $s -eq 0 ] && break
