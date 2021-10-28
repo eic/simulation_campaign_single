@@ -51,10 +51,10 @@ function retry {
   local delay=15
   while [[ $n -lt $max ]] ; do
     ((n++))
-    "$@" && break
-    if [[ $n -ge $max ]] ; do
-      exit $?
-    done
+    "$@"
+    s=$?
+    [ $s -eq 0 ] && break
+    [ $n -ge $max ] && exit $s
     sleep $delay
   done
 }
