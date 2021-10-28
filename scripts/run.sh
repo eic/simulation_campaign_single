@@ -45,7 +45,7 @@ fi
 BASEDIR=${DATADIR:-${PWD}}
 
 # S3 locations
-MC="/usr/local/bin/mc"
+MC="/usr/bin/parallel --retries 5 --delay 20 /usr/local/bin/mc"
 S3URL="https://dtn01.sdcc.bnl.gov:9000"
 S3RO="S3"
 S3RW="S3rw"
