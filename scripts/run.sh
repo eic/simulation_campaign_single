@@ -131,6 +131,9 @@ date
 # Get calibrations (e.g. 'acadia-v1.0-alpha' will pull artifacts from 'acadia')
 if [ ! -d config ] ; then
   ${CALIBRATION:-/opt/benchmarks/physics_benchmarks}/bin/get_calibrations ${DETECTOR_VERSION/-*/}
+else
+  echo "config/ exists"
+  ls -al config/
 fi
 
 # Test reconstruction before simulation
