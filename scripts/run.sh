@@ -45,7 +45,8 @@ fi
 BASEDIR=${DATADIR:-${PWD}}
 
 # S3 locations
-MC="/usr/bin/parallel --retries 5 --delay 20 /usr/local/bin/mc"
+MC="/usr/local/bin/mc"
+RETRY="/usr/bin/parallel --retries 5 --delay 20 "
 S3URL="https://dtn01.sdcc.bnl.gov:9000"
 S3RO="S3"
 S3RW="S3rw"
@@ -146,10 +147,10 @@ if [ ! -f ${INPUT_FILE} ] ; then
   if [ -x ${MC} ] ; then
     if [ -n "${ONLINE:-}" ] ; then
       if [ -n "${S3_ACCESS_KEY:-}" -a -n "${S3_SECRET_KEY:-}" ] ; then
-        ${MC} -C . config host add ${S3RO} ${S3URL} ${S3_ACCESS_KEY} ${S3_SECRET_KEY}
-        ${MC} -C . config host list | grep -v SecretKey
-        ${MC} -C . cp --disable-multipart --insecure ${INPUT_S3RO}/${BASENAME}.steer ${INPUT_DIR}
-        ${MC} -C . config host remove ${S3RO}
+        ${RETRY} ${MC} -C . config host add ${S3RO} ${S3URL} ${S3_ACCESS_KEY} ${S3_SECRET_KEY}
+        ${RETRY} ${MC} -C . config host list | grep -v SecretKey
+        ${RETRY} ${MC} -C . cp --disable-multipart --insecure ${INPUT_S3RO}/${BASENAME}.steer ${INPUT_DIR}
+        ${RETRY} ${MC} -C . config host remove ${S3RO}
       else
         echo "No S3 credentials. Provide (readonly) S3 credentials."
         exit -1
@@ -180,10 +181,10 @@ ls -al ${FULL_TEMP}/${TASKNAME}.root
 if [ -x ${MC} ] ; then
   if [ -n "${ONLINE:-}" ] ; then
     if [ -n "${S3RW_ACCESS_KEY:-}" -a -n "${S3RW_SECRET_KEY:-}" ] ; then
-      ${MC} -C . config host add ${S3RW} ${S3URL} ${S3RW_ACCESS_KEY} ${S3RW_SECRET_KEY}
-      ${MC} -C . config host list | grep -v SecretKey
-      ${MC} -C . cp --disable-multipart --insecure ${FULL_TEMP}/${TASKNAME}.root ${FULL_S3RW}/
-      ${MC} -C . config host remove ${S3RW}
+      ${RETRY} ${MC} -C . config host add ${S3RW} ${S3URL} ${S3RW_ACCESS_KEY} ${S3RW_SECRET_KEY}
+      ${RETRY} ${MC} -C . config host list | grep -v SecretKey
+      ${RETRY} ${MC} -C . cp --disable-multipart --insecure ${FULL_TEMP}/${TASKNAME}.root ${FULL_S3RW}/
+      ${RETRY} ${MC} -C . config host remove ${S3RW}
     else
       echo "No S3 credentials."
     fi
@@ -219,13 +220,13 @@ ls -al ${LOG_TEMP}/${TASKNAME}.out
 if [ -x ${MC} ] ; then
   if [ -n "${ONLINE:-}" ] ; then
     if [ -n "${S3RW_ACCESS_KEY:-}" -a -n "${S3RW_SECRET_KEY:-}" ] ; then
-      ${MC} -C . config host add ${S3RW} ${S3URL} ${S3RW_ACCESS_KEY} ${S3RW_SECRET_KEY}
-      ${MC} -C . config host list | grep -v SecretKey
+      ${RETRY} ${MC} -C . config host add ${S3RW} ${S3URL} ${S3RW_ACCESS_KEY} ${S3RW_SECRET_KEY}
+      ${RETRY} ${MC} -C . config host list | grep -v SecretKey
       for i in ${RECO_TEMP}/${TASKNAME}*.root ; do
-        ${MC} -C . cp --disable-multipart --insecure ${i} ${RECO_S3RW}/
+        ${RETRY} ${MC} -C . cp --disable-multipart --insecure ${i} ${RECO_S3RW}/
       done
-      ${MC} -C . cp --disable-multipart --insecure ${LOG_TEMP}/${TASKNAME}.out ${LOG_S3RW}/
-      ${MC} -C . config host remove ${S3RW}
+      ${RETRY} ${MC} -C . cp --disable-multipart --insecure ${LOG_TEMP}/${TASKNAME}.out ${LOG_S3RW}/
+      ${RETRY} ${MC} -C . config host remove ${S3RW}
     else
       echo "No S3 credentials."
     fi
