@@ -128,6 +128,11 @@ fi
 {
 date
 
+# Get calibrations (e.g. 'acadia-v1.0-alpha' will pull artifacts from 'acadia')
+if [ ! -d config ] ; then
+  ${CALIBRATION:-/opt/benchmarks/physics_benchmarks}/bin/get_calibrations ${DETECTOR_VERSION/-*/}
+fi
+
 # Test reconstruction before simulation
 export JUGGLER_N_EVENTS=2147483647
 export JUGGLER_SIM_FILE="${FULL_TEMP}/${TASKNAME}.root"
@@ -190,11 +195,6 @@ fi
 if [ "${COPYFULL:-false}" == "true" ] ; then
   cp ${FULL_TEMP}/${TASKNAME}.root ${FULL_DIR}
   ls -al ${FULL_DIR}/${TASKNAME}.root
-fi
-
-# Get calibrations (e.g. 'acadia-v1.0-alpha' will pull artifacts from 'acadia')
-if [ ! -d config ] ; then
-  ${CALIBRATION:-/opt/benchmarks/physics_benchmarks}/bin/get_calibrations ${DETECTOR_VERSION/-*/}
 fi
 
 # Run reconstruction
