@@ -129,6 +129,8 @@ fi
 date
 
 # Test reconstruction before simulation
+export JUGGLER_N_EVENTS=2147483647
+export JUGGLER_SIM_FILE="${FULL_TEMP}/${TASKNAME}.root"
 for rec in ${RECONSTRUCTION:-/opt/benchmarks/physics_benchmarks/options}/*.py ; do
   python ${rec}
 done
@@ -196,8 +198,6 @@ fi
 
 # Run reconstruction
 date
-export JUGGLER_N_EVENTS=2147483647
-export JUGGLER_SIM_FILE="${FULL_TEMP}/${TASKNAME}.root"
 for rec in ${RECONSTRUCTION:-/opt/benchmarks/physics_benchmarks/options}/*.py ; do
   unset tag
   [[ $(basename ${rec} .py) =~ (.*)\.(.*) ]] && tag=".${BASH_REMATCH[2]}"
