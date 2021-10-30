@@ -48,13 +48,20 @@ BASEDIR=${DATADIR:-${PWD}}
 function retry {
   local n=0
   local max=5
-  local delay=15
+  local delay=1
   while [[ $n -lt $max ]] ; do
     n=$((n+1))
-    "$@"
-    s=$?
-    [ $s -eq 0 ] && break
-    [ $n -ge $max ] && exit $s
+    s=0
+    "$@" || s=$?
+    [ $s -eq 0 ] && {
+      echo "Succeeded in $n retries."
+      return $s
+    }
+    [ $n -ge $max ] && {
+      echo "Failed after $n retries, exiting with $s"
+      return $s
+    }
+    echo "Retrying in $delay seconds..."
     sleep $delay
   done
 }
@@ -145,12 +152,8 @@ date
 
 # Get calibrations (e.g. 'acadia-v1.0-alpha' will pull artifacts from 'acadia')
 if [ ! -d config ] ; then
-  echo "Getting calibrations into config/" 
   ${CALIBRATION:-/opt/benchmarks/physics_benchmarks}/bin/get_calibrations ${DETECTOR_VERSION/-*/}
-else
-  echo "Calibrations directory config/ already exists"
 fi
-ls -al config/
 
 # Test reconstruction before simulation
 export JUGGLER_N_EVENTS=2147483647
