@@ -145,8 +145,12 @@ date
 
 # Get calibrations (e.g. 'acadia-v1.0-alpha' will pull artifacts from 'acadia')
 if [ ! -d config ] ; then
+  echo "Getting calibrations into config/" 
   ${CALIBRATION:-/opt/benchmarks/physics_benchmarks}/bin/get_calibrations ${DETECTOR_VERSION/-*/}
+else
+  echo "Calibrations directory config/ already exists"
 fi
+ls -al config/
 
 # Test reconstruction before simulation
 export JUGGLER_N_EVENTS=2147483647
