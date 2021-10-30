@@ -54,7 +54,6 @@ function retry {
     s=0
     "$@" || s=$?
     [ $s -eq 0 ] && {
-      echo "Succeeded in $n retries."
       return $s
     }
     [ $n -ge $max ] && {
