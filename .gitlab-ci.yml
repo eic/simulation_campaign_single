@@ -21,7 +21,6 @@ generate:
     matrix:
       - TAG:
         - "nightly"
-        - "4.0-deathvalley-stable"
   image: eicweb.phy.anl.gov:4567/containers/eic_container/jug_xl:${TAG}
 
 run_electron_1GeV_45to135deg:
