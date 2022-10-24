@@ -35,7 +35,7 @@ eic-info
 
 # Load container environment
 export CONFIG=${DETECTOR_CONFIG:-}
-source /opt/detector/epic-${DETECTOR_VERSION:-nightly}/setup.sh
+source /opt/detector/${DETECTOR:-epic}-${DETECTOR_VERSION:-nightly}/setup.sh
 export DETECTOR_CONFIG=epic${CONFIG:+_${CONFIG}}
 
 # Argument parsing
