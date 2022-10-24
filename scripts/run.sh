@@ -33,9 +33,10 @@ df -h
 ls -al
 eic-info
 
-# Load container environment (include ${DETECTOR_VERSION})
-source /opt/detector/setup.sh
-echo "DETECTOR_VERSION=${DETECTOR_VERSION}"
+# Load container environment
+export CONFIG=${DETECTOR_CONFIG:-}
+source /opt/detector/epic-${DETECTOR_VERSION:-nightly}/setup.sh
+export DETECTOR_CONFIG=epic${CONFIG:+_${CONFIG}}.xml
 
 # Argument parsing
 # - input file
@@ -125,7 +126,7 @@ INPUT_TEMP=${TMPDIR}/EVGEN/${TAG}
 mkdir -p ${INPUT_DIR} ${INPUT_TEMP}
 INPUT_S3RO=${S3RODIR}/EVGEN/${TAG}
 INPUT_S3RO=${INPUT_S3RO//\/\//\/}
-TAG=${DETECTOR_VERSION}/${TAG}
+TAG=${DETECTOR_VERSION}/${DETECTOR_CONFIG}/${TAG}
 
 # Output file names
 LOG_DIR=${BASEDIR}/LOG/${TAG}
@@ -201,7 +202,7 @@ fi
   --steeringFile ${INPUT_FILE} \
   --numberOfEvents ${EVENTS_PER_TASK} \
   --part.minimalKineticEnergy 1*TeV \
-  --compactFile ${DETECTOR_PATH}/${JUGGLER_DETECTOR}.xml \
+  --compactFile ${DETECTOR_PATH}/${DETECTOR_CONFIG}.xml \
   --outputFile ${FULL_TEMP}/${TASKNAME}.edm4hep.root
 ls -al ${FULL_TEMP}/${TASKNAME}.edm4hep.root
 
