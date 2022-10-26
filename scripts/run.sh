@@ -229,19 +229,26 @@ if [ "${COPYFULL:-false}" == "true" ] ; then
   ls -al ${FULL_DIR}/${TASKNAME}.edm4hep.root
 fi
 
-# Run reconstruction
+# Run juggler reconstruction
 date
 for rec in ${RECONSTRUCTION:-/opt/benchmarks/physics_benchmarks/options}/*.py ; do
   unset tag
   [[ $(basename ${rec} .py) =~ (.*)\.(.*) ]] && tag=".${BASH_REMATCH[2]}"
-  export JUGGLER_REC_FILE="${RECO_TEMP}/${TASKNAME}${tag:-}.edm4hep.root"
+  export JUGGLER_REC_FILE="${RECO_TEMP}/${TASKNAME}${tag:-}.juggler.edm4eic.root"
   /usr/bin/time -v \
     gaudirun.py ${rec} \
     || [ $? -eq 4 ]
   # FIXME why $? = 4
   ls -al ${JUGGLER_REC_FILE}
 done
-ls -al ${RECO_TEMP}/${TASKNAME}*.edm4hep.root
+ls -al ${RECO_TEMP}/${TASKNAME}*.juggler.edm4eic.root
+
+# Run eicrecon reconstruction
+date
+/usr/bin/time -v \
+  run_eicrecon_reco_flags.py "${JUGGLER_SIM_FILE}" "${RECO_TEMP}/${TASKNAME}.eicrecon"
+
+# Remove full simulation
 rm -f ${FULL_TEMP}/${TASKNAME}.edm4hep.root
 
 } 2>&1 | grep -v SECRET_KEY | tee ${LOG_TEMP}/${TASKNAME}.out
@@ -253,7 +260,7 @@ if [ -x ${MC} ] ; then
     if [ -n "${S3RW_ACCESS_KEY:-}" -a -n "${S3RW_SECRET_KEY:-}" ] ; then
       retry ${MC} -C . config host add ${S3RW} ${S3URL} ${S3RW_ACCESS_KEY} ${S3RW_SECRET_KEY}
       retry ${MC} -C . config host list | grep -v SecretKey
-      for i in ${RECO_TEMP}/${TASKNAME}*.edm4hep.root ; do
+      for i in ${RECO_TEMP}/${TASKNAME}*.edm4eic.root ; do
         retry ${MC} -C . cp --disable-multipart --insecure ${i} ${RECO_S3RW}/
       done
       retry ${MC} -C . cp --disable-multipart --insecure ${LOG_TEMP}/${TASKNAME}.out ${LOG_S3RW}/
@@ -267,14 +274,14 @@ if [ -x ${MC} ] ; then
 fi
 # Data egress to directory
 if [ "${COPYRECO:-false}" == "true" ] ; then
-  cp ${RECO_TEMP}/${TASKNAME}*.edm4hep.root ${RECO_DIR}
-  ls -al ${RECO_DIR}/${TASKNAME}*.edm4hep.root
+  cp ${RECO_TEMP}/${TASKNAME}*.edm4eic.root ${RECO_DIR}
+  ls -al ${RECO_DIR}/${TASKNAME}*.edm4eic.root
 fi
 if [ "${COPYLOG:-false}" == "true" ] ; then
   cp ${LOG_TEMP}/${TASKNAME}.out ${LOG_DIR}
   ls -al ${LOG_DIR}/${TASKNAME}.out
 fi
-rm -f ${RECO_TEMP}/${TASKNAME}*.edm4hep.root
+rm -f ${RECO_TEMP}/${TASKNAME}*.edm4eic.root
 
 # closeout
 date
