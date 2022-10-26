@@ -176,10 +176,11 @@ if [ ! -f ${INPUT_FILE} ] ; then
   if [ -x ${MC} ] ; then
     if [ -n "${ONLINE:-}" ] ; then
       if [ -n "${S3_ACCESS_KEY:-}" -a -n "${S3_SECRET_KEY:-}" ] ; then
-        retry ${MC} -C . config host add ${S3RO} ${S3URL} ${S3_ACCESS_KEY} ${S3_SECRET_KEY}
-        retry ${MC} -C . config host list | grep -v SecretKey
-        retry ${MC} -C . cp --disable-multipart --insecure ${INPUT_S3RO}/${BASENAME}.steer ${INPUT_DIR}
-        retry ${MC} -C . config host remove ${S3RO}
+        MC_CONFIG=$(mktemp -d $PWD/mc_config.XXXX)
+        retry ${MC} -C ${MC_CONFIG} config host add ${S3RO} ${S3URL} ${S3_ACCESS_KEY} ${S3_SECRET_KEY}
+        retry ${MC} -C ${MC_CONFIG} config host list | grep -v SecretKey
+        retry ${MC} -C ${MC_CONFIG} cp --disable-multipart --insecure ${INPUT_S3RO}/${BASENAME}.steer ${INPUT_DIR}
+        retry ${MC} -C ${MC_CONFIG} config host remove ${S3RO}
       else
         echo "No S3 credentials. Provide (readonly) S3 credentials."
         exit -1
@@ -211,10 +212,11 @@ if [ "${UPLOADFULL:-false}" == "true" ] ; then
   if [ -x ${MC} ] ; then
     if [ -n "${ONLINE:-}" ] ; then
       if [ -n "${S3RW_ACCESS_KEY:-}" -a -n "${S3RW_SECRET_KEY:-}" ] ; then
-        retry ${MC} -C . config host add ${S3RW} ${S3URL} ${S3RW_ACCESS_KEY} ${S3RW_SECRET_KEY}
-        retry ${MC} -C . config host list | grep -v SecretKey
-        retry ${MC} -C . cp --disable-multipart --insecure ${FULL_TEMP}/${TASKNAME}.edm4hep.root ${FULL_S3RW}/
-        retry ${MC} -C . config host remove ${S3RW}
+        MC_CONFIG=$(mktemp -d $PWD/mc_config.XXXX)
+        retry ${MC} -C ${MC_CONFIG} config host add ${S3RW} ${S3URL} ${S3RW_ACCESS_KEY} ${S3RW_SECRET_KEY}
+        retry ${MC} -C ${MC_CONFIG} config host list | grep -v SecretKey
+        retry ${MC} -C ${MC_CONFIG} cp --disable-multipart --insecure ${FULL_TEMP}/${TASKNAME}.edm4hep.root ${FULL_S3RW}/
+        retry ${MC} -C ${MC_CONFIG} config host remove ${S3RW}
       else
         echo "No S3 credentials."
       fi
@@ -258,13 +260,14 @@ ls -al ${LOG_TEMP}/${TASKNAME}.out
 if [ -x ${MC} ] ; then
   if [ -n "${ONLINE:-}" ] ; then
     if [ -n "${S3RW_ACCESS_KEY:-}" -a -n "${S3RW_SECRET_KEY:-}" ] ; then
-      retry ${MC} -C . config host add ${S3RW} ${S3URL} ${S3RW_ACCESS_KEY} ${S3RW_SECRET_KEY}
-      retry ${MC} -C . config host list | grep -v SecretKey
+      MC_CONFIG=$(mktemp -d $PWD/mc_config.XXXX)
+      retry ${MC} -C ${MC_CONFIG} config host add ${S3RW} ${S3URL} ${S3RW_ACCESS_KEY} ${S3RW_SECRET_KEY}
+      retry ${MC} -C ${MC_CONFIG} config host list | grep -v SecretKey
       for i in ${RECO_TEMP}/${TASKNAME}*.edm4eic.root ; do
-        retry ${MC} -C . cp --disable-multipart --insecure ${i} ${RECO_S3RW}/
+        retry ${MC} -C ${MC_CONFIG} cp --disable-multipart --insecure ${i} ${RECO_S3RW}/
       done
-      retry ${MC} -C . cp --disable-multipart --insecure ${LOG_TEMP}/${TASKNAME}.out ${LOG_S3RW}/
-      retry ${MC} -C . config host remove ${S3RW}
+      retry ${MC} -C ${MC_CONFIG} cp --disable-multipart --insecure ${LOG_TEMP}/${TASKNAME}.out ${LOG_S3RW}/
+      retry ${MC} -C ${MC_CONFIG} config host remove ${S3RW}
     else
       echo "No S3 credentials."
     fi
