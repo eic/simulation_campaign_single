@@ -232,18 +232,18 @@ if [ "${COPYFULL:-false}" == "true" ] ; then
 fi
 
 # Run juggler reconstruction
-date
-for rec in ${RECONSTRUCTION:-/opt/benchmarks/physics_benchmarks/options}/*.py ; do
-  unset tag
-  [[ $(basename ${rec} .py) =~ (.*)\.(.*) ]] && tag=".${BASH_REMATCH[2]}"
-  export JUGGLER_REC_FILE="${RECO_TEMP}/${TASKNAME}${tag:-}.juggler.tree.edm4eic.root"
-  /usr/bin/time -v \
-    gaudirun.py ${rec} \
-    || [ $? -eq 4 ]
-  # FIXME why $? = 4
-  ls -al ${JUGGLER_REC_FILE}
-done
-ls -al ${RECO_TEMP}/${TASKNAME}*.juggler.tree.edm4eic.root
+# date
+# for rec in ${RECONSTRUCTION:-/opt/benchmarks/physics_benchmarks/options}/*.py ; do
+#   unset tag
+#   [[ $(basename ${rec} .py) =~ (.*)\.(.*) ]] && tag=".${BASH_REMATCH[2]}"
+#   export JUGGLER_REC_FILE="${RECO_TEMP}/${TASKNAME}${tag:-}.juggler.tree.edm4eic.root"
+#   /usr/bin/time -v \
+#     gaudirun.py ${rec} \
+#     || [ $? -eq 4 ]
+#   # FIXME why $? = 4
+#   ls -al ${JUGGLER_REC_FILE}
+# done
+# ls -al ${RECO_TEMP}/${TASKNAME}*.juggler.tree.edm4eic.root
 
 # Run eicrecon reconstruction
 date
