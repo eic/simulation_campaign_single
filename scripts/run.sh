@@ -250,9 +250,6 @@ date
 /usr/bin/time -v \
   run_eicrecon_reco_flags.py "${JUGGLER_SIM_FILE}" "${RECO_TEMP}/${TASKNAME}.eicrecon"
 
-# Remove full simulation
-rm -f ${FULL_TEMP}/${TASKNAME}.edm4hep.root
-
 } 2>&1 | grep -v SECRET_KEY | tee ${LOG_TEMP}/${TASKNAME}.out
 ls -al ${LOG_TEMP}/${TASKNAME}.out
 
@@ -284,7 +281,12 @@ if [ "${COPYLOG:-false}" == "true" ] ; then
   cp ${LOG_TEMP}/${TASKNAME}.out ${LOG_DIR}
   ls -al ${LOG_DIR}/${TASKNAME}.out
 fi
-rm -f ${RECO_TEMP}/${TASKNAME}*.edm4eic.root
 
 # closeout
 date
+find ${TMPDIR}
+du -sh ${TMPDIR}
+
+# Remove full simulation and reconstruction
+rm -f ${FULL_TEMP}/${TASKNAME}.edm4hep.root
+rm -f ${RECO_TEMP}/${TASKNAME}*.edm4eic.root
