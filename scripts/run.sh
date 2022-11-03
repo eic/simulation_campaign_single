@@ -163,13 +163,9 @@ fi
 {
 date
 
-# Test reconstruction before simulation
 export JUGGLER_N_EVENTS=2147483647
 export JUGGLER_SIM_FILE="${FULL_TEMP}/${TASKNAME}.edm4hep.root"
 export JUGGLER_REC_FILE="${RECO_TEMP}/${TASKNAME}.edm4hep.root"
-for rec in ${RECONSTRUCTION:-/opt/benchmarks/physics_benchmarks/options}/*.py ; do
-  python ${rec}
-done
 
 # Retrieve input file if S3_ACCESS_KEY and S3_SECRET_KEY in environment
 if [ ! -f ${INPUT_FILE} ] ; then
@@ -230,20 +226,6 @@ if [ "${COPYFULL:-false}" == "true" ] ; then
   cp ${FULL_TEMP}/${TASKNAME}.edm4hep.root ${FULL_DIR}
   ls -al ${FULL_DIR}/${TASKNAME}.edm4hep.root
 fi
-
-# Run juggler reconstruction
-date
-for rec in ${RECONSTRUCTION:-/opt/benchmarks/physics_benchmarks/options}/*.py ; do
-  unset tag
-  [[ $(basename ${rec} .py) =~ (.*)\.(.*) ]] && tag=".${BASH_REMATCH[2]}"
-  export JUGGLER_REC_FILE="${RECO_TEMP}/${TASKNAME}${tag:-}.juggler.tree.edm4eic.root"
-  /usr/bin/time -v \
-    gaudirun.py ${rec} \
-    || [ $? -eq 4 ]
-  # FIXME why $? = 4
-  ls -al ${JUGGLER_REC_FILE}
-done
-ls -al ${RECO_TEMP}/${TASKNAME}*.juggler.tree.edm4eic.root
 
 # Run eicrecon reconstruction
 date
