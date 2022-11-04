@@ -29,7 +29,7 @@ echo "whoami:   $(whoami)"
 echo "pwd:      $(pwd)"
 echo "site:     ${GLIDEIN_Site:-}"
 echo "resource: ${GLIDEIN_ResourceName:-}"
-df -h --exclude-type=fuse
+df -h --exclude-type=fuse --exclude-type=tmpfs
 ls -al
 eic-info
 
