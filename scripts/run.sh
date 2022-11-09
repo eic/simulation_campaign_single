@@ -231,7 +231,7 @@ fi
 # Run eicrecon reconstruction
 date
 /usr/bin/time -v \
-  run_eicrecon_reco_flags.py "${JUGGLER_SIM_FILE}" "${RECO_TEMP}/${TASKNAME}.eicrecon" -Pjana:warmup_timeout=300 -n=0 -Pjana:timeout=300
+  run_eicrecon_reco_flags.py "${JUGGLER_SIM_FILE}" "${RECO_TEMP}/${TASKNAME}.eicrecon" -Pjana:warmup_timeout=600 -n=0 -Pjana:timeout=300
 
 } 2>&1 | grep -v SECRET_KEY | tee ${LOG_TEMP}/${TASKNAME}.out
 ls -al ${LOG_TEMP}/${TASKNAME}.out
