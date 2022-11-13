@@ -204,6 +204,7 @@ fi
   --steeringFile ${INPUT_FILE} \
   --numberOfEvents ${EVENTS_PER_TASK} \
   --part.minimalKineticEnergy 1*TeV \
+  --filter.tracker 'edep0' \
   --compactFile ${DETECTOR_PATH}/${DETECTOR_CONFIG}.xml \
   --outputFile ${FULL_TEMP}/${TASKNAME}.edm4hep.root
 ls -al ${FULL_TEMP}/${TASKNAME}.edm4hep.root
