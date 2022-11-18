@@ -30,8 +30,11 @@ echo "whoami:   $(whoami)"
 echo "pwd:      $(pwd)"
 echo "site:     ${GLIDEIN_Site:-}"
 echo "resource: ${GLIDEIN_ResourceName:-}"
+echo "http_proxy: ${http_proxy:-}"
 df -h --exclude-type=fuse --exclude-type=tmpfs
 ls -al
+test -f .job.ad && cat .job.ad
+test -f .machine.ad && cat .machine.ad
 eic-info
 
 # Load container environment
@@ -149,7 +152,7 @@ RECO_S3RW=${RECO_S3RW//\/\//\/}
 mkdir -p ${RECO_DIR} ${RECO_TEMP}
 
 # Internet connectivity check
-if curl --connect-timeout 10 --retry 5 --silent --show-error ${S3URL} > /dev/null ; then
+if curl --connect-timeout 30 --retry 5 --silent --show-error ${S3URL} > /dev/null ; then
   echo "$(hostname) is online."
   export ONLINE=true
 else
@@ -289,6 +292,6 @@ date
 find ${TMPDIR}
 du -sh ${TMPDIR}
 
-# Remove full simulation and reconstruction
+# Remove full simulation
 rm -f ${FULL_TEMP}/${TASKNAME}.edm4hep.root
 rm -f ${RECO_TEMP}/${TASKNAME}*.edm4eic.root
