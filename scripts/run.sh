@@ -196,6 +196,25 @@ if [ ! -f ${INPUT_FILE} ] ; then
   fi
 fi
 
+# Remove any output files if they exist
+if [ -x ${MC} ] ; then
+  if [ -n "${ONLINE:-}" ] ; then
+    if [ -n "${S3RW_ACCESS_KEY:-}" -a -n "${S3RW_SECRET_KEY:-}" ] ; then
+      MC_CONFIG=$(mktemp -d $PWD/mc_config.XXXX)
+      retry ${MC} -C ${MC_CONFIG} config host add ${S3RW} ${S3URL} ${S3RW_ACCESS_KEY} ${S3RW_SECRET_KEY}
+      retry ${MC} -C ${MC_CONFIG} config host list ${S3RW} | grep -v SecretKey
+      for dir in ${FULL_S3RW} ${RECO_S3RW} ${LOG_S3RW} ; do
+        ${MC} -C ${MC_CONFIG} find --name "${TASKNAME}.*" ${dir} || true
+      done | xargs --no-run-if-empty ${MC} -C ${MC_CONFIG} rm
+      retry ${MC} -C ${MC_CONFIG} config host remove ${S3RW}
+    else
+      echo "No S3 credentials."
+    fi
+  else
+    echo "No internet connection."
+  fi
+fi
+
 # Run simulation
 prmon \
   --filename ${LOG_TEMP}/${TASKNAME}.npsim.prmon.txt \
