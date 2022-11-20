@@ -205,7 +205,7 @@ if [ -x ${MC} ] ; then
       retry ${MC} -C ${MC_CONFIG} config host list ${S3RW} | grep -v SecretKey
       for dir in ${FULL_S3RW} ${RECO_S3RW} ${LOG_S3RW} ; do
         ${MC} -C ${MC_CONFIG} find --name "${TASKNAME}.*" ${dir} || true
-      done | xargs --no-run-if-empty ${MC} -C ${MC_CONFIG} rm
+      done | xargs --no-run-if-empty ${MC} -C ${MC_CONFIG} rm || true
       retry ${MC} -C ${MC_CONFIG} config host remove ${S3RW}
     else
       echo "No S3 credentials."
