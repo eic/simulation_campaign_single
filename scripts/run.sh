@@ -283,7 +283,7 @@ if [ -f jana.dot ] ; then mv jana.dot ${LOG_TEMP}/${TASKNAME}.eicrecon.dot ; fi
 ls -al ${RECO_TEMP}/${TASKNAME}*.eicrecon.tree.edm4eic.root
 
 } 2>&1 | grep -v SECRET_KEY | tee ${LOG_TEMP}/${TASKNAME}.out
-ls -al ${LOG_TEMP}/${TASKNAME}.out
+ls -al ${LOG_TEMP}/${TASKNAME}.*
 
 # Data egress if S3RW_ACCESS_KEY and S3RW_SECRET_KEY in environment
 if [ -x ${MC} ] ; then
@@ -310,8 +310,8 @@ if [ "${COPYRECO:-false}" == "true" ] ; then
   ls -al ${RECO_DIR}/${TASKNAME}*.edm4eic.root
 fi
 if [ "${COPYLOG:-false}" == "true" ] ; then
-  cp ${LOG_TEMP}/${TASKNAME}.out ${LOG_DIR}
-  ls -al ${LOG_DIR}/${TASKNAME}.out
+  cp ${LOG_TEMP}/${TASKNAME}.* ${LOG_DIR}
+  ls -al ${LOG_DIR}/${TASKNAME}.*
 fi
 
 # closeout
