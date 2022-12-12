@@ -36,6 +36,6 @@ run_pion_1GeV_3to50deg_0001:
     - scripts/generate.sh pi+ 1*GeV 3 50
     - mkdir -p EVGEN/CI/SINGLE/pi+/1GeV/3to50deg
     - cp pi+_1GeV_3to50deg.steer EVGEN/CI/SINGLE/pi+/1GeV/3to50deg/pi+_1GeV_3to50deg.steer
-    - COPYRECO=true scripts/run.sh EVGEN/CI/SINGLE/pi+/1GeV/3to50deg/pi+_1GeV_3to50deg.steer 100 1
+    - COPYRECO=true scripts/run.sh EVGEN/CI/SINGLE/pi+/1GeV/3to50deg/pi+_1GeV_3to50deg.steer 100 0001
     - test -f RECO/*/*/CI/SINGLE/pi+/1GeV/3to50deg/pi+_1GeV_3to50deg.0001.juggler.tree.edm4eic.root
     - test -f RECO/*/*/CI/SINGLE/pi+/1GeV/3to50deg/pi+_1GeV_3to50deg.0001.eicrecon.tree.edm4eic.root
