@@ -26,8 +26,6 @@ run_electron_1GeV_45to135deg:
   extends: .test
   script:
     - scripts/generate.sh e- 1*GeV 45 135
-    - mkdir -p EVGEN/CI/SINGLE/e-/1GeV/45to135deg
-    - cp e-_1GeV_45to135deg.steer EVGEN/CI/SINGLE/e-/1GeV/45to135deg/e-_1GeV_45to135deg.steer
     - COPYRECO=true scripts/run.sh EVGEN/CI/SINGLE/e-/1GeV/45to135deg/e-_1GeV_45to135deg.steer 100
     - test -f RECO/*/*/CI/SINGLE/e-/1GeV/45to135deg/e-_1GeV_45to135deg.juggler.tree.edm4eic.root
     - test -f RECO/*/*/CI/SINGLE/e-/1GeV/45to135deg/e-_1GeV_45to135deg.eicrecon.tree.edm4eic.root
