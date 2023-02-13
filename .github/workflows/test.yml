@@ -16,6 +16,7 @@ concurrency:
 jobs:
   generate:
     runs-on: ubuntu-latest
+    steps:
     - uses: actions/checkout@v3
     - uses: cvmfs-contrib/github-action-cvmfs@v3
     - uses: eic/run-cvmfs-osg-eic-shell@main
@@ -33,6 +34,7 @@ jobs:
   run_electron_1GeV_45to135deg:
     needs: generate
     runs-on: ubuntu-latest
+    steps:
     - uses: actions/checkout@v3
     - uses: cvmfs-contrib/github-action-cvmfs@v3
     - uses: eic/run-cvmfs-osg-eic-shell@main
