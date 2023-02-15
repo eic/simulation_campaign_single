@@ -55,7 +55,7 @@ else
   # 10-base input task number to 4-zero-padded task number
   TASK=".${3}"
   SEED=$((10#${3}+1))
-  # assumes zero-based task number, can be zero-padded 
+  # assumes zero-based task number, can be zero-padded
   SKIP_N_EVENTS=0
 fi
 
