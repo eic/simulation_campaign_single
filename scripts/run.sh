@@ -34,7 +34,6 @@ df -h --exclude-type=fuse --exclude-type=tmpfs
 ls -al
 test -f .job.ad && cat .job.ad
 test -f .machine.ad && cat .machine.ad
-eic-info
 
 # Load container environment (include ${DETECTOR_VERSION})
 export DETECTOR_CONFIG_REQUESTED=${DETECTOR_CONFIG:-}
@@ -142,6 +141,7 @@ fi
 # Run simulation
 {
   date
+  eic-info
   prmon \
     --filename ${LOG_TEMP}/${TASKNAME}.npsim.prmon.txt \
     --json-summary ${LOG_TEMP}/${TASKNAME}.npsim.prmon.json \
@@ -170,6 +170,7 @@ fi
 # Run juggler reconstruction
 {
   date
+  eic-info
   export JUGGLER_N_EVENTS=2147483647
   export JUGGLER_SIM_FILE="${FULL_TEMP}/${TASKNAME}.edm4hep.root"
   export JUGGLER_REC_FILE="${RECO_TEMP}/${TASKNAME}.edm4hep.root"
@@ -192,6 +193,7 @@ fi
 # Run eicrecon reconstruction
 {
   date
+  eic-info
   prmon \
     --filename ${LOG_TEMP}/${TASKNAME}.eicrecon.prmon.txt \
     --json-summary ${LOG_TEMP}/${TASKNAME}.eicrecon.prmon.json \
