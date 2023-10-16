@@ -167,29 +167,6 @@ if [ "${COPYFULL:-false}" == "true" ] ; then
   ls -al ${FULL_DIR}/${TASKNAME}.edm4hep.root
 fi
 
-# Run juggler reconstruction
-{
-  date
-  eic-info
-  export JUGGLER_N_EVENTS=2147483647
-  export JUGGLER_SIM_FILE="${FULL_TEMP}/${TASKNAME}.edm4hep.root"
-  export JUGGLER_REC_FILE="${RECO_TEMP}/${TASKNAME}.edm4hep.root"
-  for rec in ${RECONSTRUCTION:-/opt/benchmarks/physics_benchmarks/options}/*.py ; do
-    unset tag
-    [[ $(basename ${rec} .py) =~ (.*)\.(.*) ]] && tag=".${BASH_REMATCH[2]}"
-    export JUGGLER_REC_FILE="${RECO_TEMP}/${TASKNAME}${tag:-}.juggler.tree.edm4eic.root"
-    prmon \
-      --filename ${LOG_TEMP}/${TASKNAME}${tag:-}.juggler.prmon.txt \
-      --json-summary ${LOG_TEMP}/${TASKNAME}${tag:-}.juggler.prmon.json \
-      -- \
-    gaudirun.py ${rec} \
-      || [ $? -eq 4 ]
-    # FIXME why $? = 4
-    ls -al ${JUGGLER_REC_FILE}
-  done
-  ls -al ${RECO_TEMP}/${TASKNAME}*.juggler.tree.edm4eic.root
-} 2>&1 | grep -v SECRET_KEY | tee ${LOG_TEMP}/${TASKNAME}.juggler.log
-
 # Run eicrecon reconstruction
 {
   date
