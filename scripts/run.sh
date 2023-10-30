@@ -108,7 +108,7 @@ mkdir -p ${INPUT_DIR} ${INPUT_TEMP}
 TAG=${DETECTOR_VERSION}/${DETECTOR_CONFIG}/${TAG}
 
 # Copy input file from xrootd
-if ! [ -f ${INPUT_DIR}/${INPUT_FILE}]; then
+if ! [ -f ${INPUT_DIR}/${INPUT_FILE} ]; then
   xrdcp ${XRDURL}/${INPUT_FILE} ${INPUT_DIR}
 fi
 
