@@ -108,7 +108,7 @@ mkdir -p ${INPUT_DIR} ${INPUT_TEMP}
 TAG=${DETECTOR_VERSION}/${DETECTOR_CONFIG}/${TAG}
 
 # Copy input file from xrootd
-xrdcp ${XRDURL}/${INPUT_FILE} ${INPUT_DIR}
+xrdcp -f ${XRDURL}/${INPUT_FILE} ${INPUT_DIR}
 
 # Output file names
 LOG_DIR=${BASEDIR}/LOG/${TAG}
