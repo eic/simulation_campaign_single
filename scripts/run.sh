@@ -91,7 +91,7 @@ ls -al ${TMPDIR}
 BASENAME=$(basename ${INPUT_FILE} .steer)
 TASKNAME=${BASENAME}${TASK}
 INPUT_DIR=$(dirname $(realpath --canonicalize-missing --relative-to=${BASEDIR} ${INPUT_FILE}))
-# - file.hepmc              -> TAG="" 
+# - file.hepmc              -> TAG=""
 # - EVGEN/file.hepmc        -> TAG=""
 # - EVGEN/DIS/file.hepmc    -> TAG="DIS"
 # - EVGEN/DIS/NC/file.hepmc -> TAG="DIS/NC"
@@ -149,7 +149,7 @@ mkdir -p ${RECO_TEMP}
 if [ "${COPYFULL:-false}" == "true" ] ; then
   if [xrdcp -f --recursive ${FULL_TEMP}/${TASKNAME}.edm4hep.root ${XRDWURL}/${FULL_DIR}] ; then
     xrdfs ${XRDURL} ls -l ${FULL_DIR}/${TASKNAME}.edm4hep.root
-  else 
+  else
     echo "Failed to copy raw simulation output to xrootd"
   fi
 fi
