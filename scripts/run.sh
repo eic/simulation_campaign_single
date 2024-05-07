@@ -61,9 +61,9 @@ fi
 # Output location
 BASEDIR=${DATADIR:-${PWD}}
 
-# XRD and S3 locations
+# XRD Read and Write locations
 XRDURL="root://dtn-eic.jlab.org//work/eic2/EPIC"
-S3URL="https://eics3.sdcc.bnl.gov:9000"
+XRDWURL="xroots://dtn2201.jlab.org//eic/eic2/EPIC"
 
 # Local temp dir
 echo "SLURM_TMPDIR=${SLURM_TMPDIR:-}"
@@ -91,8 +91,8 @@ ls -al ${TMPDIR}
 BASENAME=$(basename ${INPUT_FILE} .steer)
 TASKNAME=${BASENAME}${TASK}
 INPUT_DIR=$(dirname $(realpath --canonicalize-missing --relative-to=${BASEDIR} ${INPUT_FILE}))
-# - file.hepmc              -> TAG="", and avoid double // in S3 location
-# - EVGEN/file.hepmc        -> TAG="", and avoid double // in S3 location
+# - file.hepmc              -> TAG="" 
+# - EVGEN/file.hepmc        -> TAG=""
 # - EVGEN/DIS/file.hepmc    -> TAG="DIS"
 # - EVGEN/DIS/NC/file.hepmc -> TAG="DIS/NC"
 # - ../file.hepmc           -> error
@@ -103,8 +103,7 @@ fi
 INPUT_PREFIX=${INPUT_DIR/\/*/}
 TAG=${INPUT_DIR/${INPUT_PREFIX}\//}
 INPUT_DIR=${BASEDIR}/EVGEN/${TAG}
-INPUT_TEMP=${TMPDIR}/EVGEN/${TAG}
-mkdir -p ${INPUT_DIR} ${INPUT_TEMP}
+mkdir -p ${INPUT_DIR}
 TAG=${DETECTOR_VERSION}/${DETECTOR_CONFIG}/${TAG}
 
 # Copy input file from xrootd
@@ -113,15 +112,15 @@ xrdcp -f ${XRDURL}/${INPUT_FILE} ${INPUT_DIR}
 # Output file names
 LOG_DIR=${BASEDIR}/LOG/${TAG}
 LOG_TEMP=${TMPDIR}/LOG/${TAG}
-mkdir -p ${LOG_DIR} ${LOG_TEMP}
+mkdir -p ${LOG_TEMP}
 #
 FULL_DIR=${BASEDIR}/FULL/${TAG}
 FULL_TEMP=${TMPDIR}/FULL/${TAG}
-mkdir -p ${FULL_DIR} ${FULL_TEMP}
+mkdir -p ${FULL_TEMP}
 #
 RECO_DIR=${BASEDIR}/RECO/${TAG}
 RECO_TEMP=${TMPDIR}/RECO/${TAG}
-mkdir -p ${RECO_DIR} ${RECO_TEMP}
+mkdir -p ${RECO_TEMP}
 
 # Run simulation
 {
@@ -148,8 +147,11 @@ mkdir -p ${RECO_DIR} ${RECO_TEMP}
 
 # Data egress to directory
 if [ "${COPYFULL:-false}" == "true" ] ; then
-  cp ${FULL_TEMP}/${TASKNAME}.edm4hep.root ${FULL_DIR}
-  ls -al ${FULL_DIR}/${TASKNAME}.edm4hep.root
+  if [xrdcp -f --recursive ${FULL_TEMP}/${TASKNAME}.edm4hep.root ${XRDWURL}/${FULL_DIR}] ; then
+    xrdfs ${XRDURL} ls -l ${FULL_DIR}/${TASKNAME}.edm4hep.root
+  else 
+    echo "Failed to copy raw simulation output to xrootd"
+  fi
 fi
 
 # Run eicrecon reconstruction
@@ -174,12 +176,18 @@ ls -al ${LOG_TEMP}/${TASKNAME}.*
 
 # Data egress to directory
 if [ "${COPYRECO:-false}" == "true" ] ; then
-  cp ${RECO_TEMP}/${TASKNAME}*.edm4eic.root ${RECO_DIR}
-  ls -al ${RECO_DIR}/${TASKNAME}*.edm4eic.root
+  if [xrdcp -f --recursive ${RECO_TEMP}/${TASKNAME}*.edm4eic.root ${XRDWURL}/${RECO_DIR}] ; then
+    xrdfs ${XRDURL} ls -l ${RECO_DIR}/${TASKNAME}*.edm4eic.root
+  else
+    echo "Failed to copy reconstructed files to xrootd"
+  fi
 fi
 if [ "${COPYLOG:-false}" == "true" ] ; then
-  cp ${LOG_TEMP}/${TASKNAME}.* ${LOG_DIR}
-  ls -al ${LOG_DIR}/${TASKNAME}.*
+  if [xrdcp -f --recursive ${LOG_TEMP}/${TASKNAME}.* ${XRDWURL}/${LOG_DIR}] ; then
+    xrdfs ${XRDURL} ls -l ${LOG_DIR}/${TASKNAME}.*
+  else
+    echo "Failed to copy log files to xrootd"
+  fi
 fi
 
 # closeout
