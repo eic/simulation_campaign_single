@@ -45,7 +45,7 @@ jobs:
           BEARER_TOKEN: ${{SECRETS.XRD_TOKEN}}
         run: |
           COPYRECO=true scripts/run.sh EVGEN/SINGLE/e-/1GeV/45to135deg/e-_1GeV_45to135deg.steer 100
-          
+
   run_pion_1GeV_3to50deg_0001:
     needs: generate
     runs-on: ubuntu-latest
