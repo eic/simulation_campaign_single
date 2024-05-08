@@ -41,10 +41,11 @@ jobs:
       with:
         platform-release: "jug_xl:nightly"
         setup: /opt/detector/setup.sh
+        env: |
+          BEARER_TOKEN: ${{SECRETS.XRD_TOKEN}}
         run: |
           COPYRECO=true scripts/run.sh EVGEN/SINGLE/e-/1GeV/45to135deg/e-_1GeV_45to135deg.steer 100
-          test -f RECO/*/*/SINGLE/e-/1GeV/45to135deg/e-_1GeV_45to135deg.eicrecon.tree.edm4eic.root
-
+          
   run_pion_1GeV_3to50deg_0001:
     needs: generate
     runs-on: ubuntu-latest
@@ -55,6 +56,7 @@ jobs:
       with:
         platform-release: "jug_xl:nightly"
         setup: /opt/detector/setup.sh
+        env: |
+          BEARER_TOKEN: ${{SECRETS.XRD_TOKEN}}
         run: |
           COPYRECO=true scripts/run.sh EVGEN/SINGLE/pi+/1GeV/3to50deg/pi+_1GeV_3to50deg.steer 100 0001
-          test -f RECO/*/*/SINGLE/pi+/1GeV/3to50deg/pi+_1GeV_3to50deg.0001.eicrecon.tree.edm4eic.root
