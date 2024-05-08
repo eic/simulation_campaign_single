@@ -179,6 +179,7 @@ if [ "${COPYRECO:-false}" == "true" ] ; then
   if [ xrdcp -f --recursive ${RECO_TEMP}/${TASKNAME}*.edm4eic.root ${XRDWURL}/${RECO_DIR} ] ; then
     xrdfs ${XRDURL} ls -l ${RECO_DIR}/${TASKNAME}*.edm4eic.root
   else
+    xrdcp -d 3 -f --recursive ${RECO_TEMP}/${TASKNAME}*.edm4eic.root ${XRDWURL}/${RECO_DIR}
     echo "Failed to copy reconstructed files to xrootd"
   fi
 fi
