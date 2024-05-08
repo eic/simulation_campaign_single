@@ -42,7 +42,7 @@ jobs:
         platform-release: "jug_xl:nightly"
         setup: /opt/detector/setup.sh
         env: |
-          BEARER_TOKEN: ${{SECRETS.XRD_TOKEN}}
+          BEARER_TOKEN: ${{secrets.XRD_TOKEN}}
         run: |
           COPYRECO=true scripts/run.sh EVGEN/SINGLE/e-/1GeV/45to135deg/e-_1GeV_45to135deg.steer 100
 
@@ -57,6 +57,6 @@ jobs:
         platform-release: "jug_xl:nightly"
         setup: /opt/detector/setup.sh
         env: |
-          BEARER_TOKEN: ${{SECRETS.XRD_TOKEN}}
+          BEARER_TOKEN: ${{secrets.XRD_TOKEN}}
         run: |
           COPYRECO=true scripts/run.sh EVGEN/SINGLE/pi+/1GeV/3to50deg/pi+_1GeV_3to50deg.steer 100 0001
