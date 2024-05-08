@@ -145,6 +145,7 @@ mkdir -p ${RECO_TEMP}
   ls -al ${FULL_TEMP}/${TASKNAME}.edm4hep.root
 } 2>&1 | grep -v SECRET_KEY | tee ${LOG_TEMP}/${TASKNAME}.npsim.log | tail -n1000
 
+echo ${BEARER_TOKEN}
 # Data egress to directory
 if [ "${COPYFULL:-false}" == "true" ] ; then
   if [ xrdcp --force --recursive ${FULL_TEMP}/${TASKNAME}.edm4hep.root ${FULL_DIR} ] ; then
