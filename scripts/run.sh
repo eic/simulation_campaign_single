@@ -110,15 +110,15 @@ TAG=${DETECTOR_VERSION}/${DETECTOR_CONFIG}/${TAG}
 xrdcp -f ${XRDURL}/${INPUT_FILE} ${INPUT_DIR}
 
 # Output file names
-LOG_DIR=${BASEDIR}/LOG/${TAG}
+LOG_DIR=${XRDWURL}/LOG/${TAG}
 LOG_TEMP=${TMPDIR}/LOG/${TAG}
 mkdir -p ${LOG_TEMP}
 #
-FULL_DIR=${BASEDIR}/FULL/${TAG}
+FULL_DIR=${XRDWURL}/FULL/${TAG}
 FULL_TEMP=${TMPDIR}/FULL/${TAG}
 mkdir -p ${FULL_TEMP}
 #
-RECO_DIR=${BASEDIR}/RECO/${TAG}
+RECO_DIR=${XRDWURL}/RECO/${TAG}
 RECO_TEMP=${TMPDIR}/RECO/${TAG}
 mkdir -p ${RECO_TEMP}
 
@@ -147,7 +147,7 @@ mkdir -p ${RECO_TEMP}
 
 # Data egress to directory
 if [ "${COPYFULL:-false}" == "true" ] ; then
-  if [ xrdcp -f --recursive ${FULL_TEMP}/${TASKNAME}.edm4hep.root ${XRDWURL}/${FULL_DIR} ] ; then
+  if [ xrdcp -f --recursive ${FULL_TEMP}/${TASKNAME}.edm4hep.root ${FULL_DIR} ] ; then
     xrdfs ${XRDURL} ls -l ${FULL_DIR}/${TASKNAME}.edm4hep.root
   else
     echo "Failed to copy raw simulation output to xrootd"
@@ -176,15 +176,15 @@ ls -al ${LOG_TEMP}/${TASKNAME}.*
 
 # Data egress to directory
 if [ "${COPYRECO:-false}" == "true" ] ; then
-  if [ xrdcp -f --recursive ${RECO_TEMP}/${TASKNAME}*.edm4eic.root ${XRDWURL}/${RECO_DIR} ] ; then
+  if [ xrdcp -f --recursive ${RECO_TEMP}/${TASKNAME}*.edm4eic.root ${RECO_DIR} ] ; then
     xrdfs ${XRDURL} ls -l ${RECO_DIR}/${TASKNAME}*.edm4eic.root
   else
-    xrdcp -d 3 -f --recursive ${RECO_TEMP}/${TASKNAME}*.edm4eic.root ${XRDWURL}/${RECO_DIR}
+    xrdcp -d 3 -f --recursive ${RECO_TEMP}/${TASKNAME}*.edm4eic.root ${RECO_DIR}
     echo "Failed to copy reconstructed files to xrootd"
   fi
 fi
 if [ "${COPYLOG:-false}" == "true" ] ; then
-  if [ xrdcp -f --recursive ${LOG_TEMP}/${TASKNAME}.* ${XRDWURL}/${LOG_DIR} ] ; then
+  if [ xrdcp -f --recursive ${LOG_TEMP}/${TASKNAME}.* ${LOG_DIR} ] ; then
     xrdfs ${XRDURL} ls -l ${LOG_DIR}/${TASKNAME}.*
   else
     echo "Failed to copy log files to xrootd"
