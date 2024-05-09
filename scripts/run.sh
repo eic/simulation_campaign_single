@@ -30,7 +30,6 @@ echo "pwd:      $(pwd)"
 echo "site:     ${GLIDEIN_Site:-}"
 echo "resource: ${GLIDEIN_ResourceName:-}"
 echo "http_proxy: ${http_proxy:-}"
-echo "bearer token: ${BEARER_TOKEN:-}"
 df -h --exclude-type=fuse --exclude-type=tmpfs
 ls -al
 test -f .job.ad && cat .job.ad
@@ -147,12 +146,9 @@ mkdir -p ${RECO_TEMP}
 } 2>&1 | grep -v SECRET_KEY | tee ${LOG_TEMP}/${TASKNAME}.npsim.log | tail -n1000
 
 # Data egress to directory
-if [ "${COPYFULL:-false}" == "true" ] ; then
-  if [ xrdcp --force --recursive ${FULL_TEMP}/${TASKNAME}.edm4hep.root ${FULL_DIR} ] ; then
-    xrdfs ${XRDURL} ls -l ${FULL_DIR}/${TASKNAME}.edm4hep.root
-  else
-    echo "Failed to copy raw simulation output to xrootd"
-  fi
+if [ "${COPYFULL:-true}" == "true" ] ; then
+  xrdcp --force --recursive ${FULL_TEMP}/${TASKNAME}.edm4hep.root ${FULL_DIR}
+  xrdfs ${XRDURL} ls -l ${FULL_DIR}/${TASKNAME}.edm4hep.root
 fi
 
 # Run eicrecon reconstruction
@@ -176,20 +172,13 @@ fi
 ls -al ${LOG_TEMP}/${TASKNAME}.*
 
 # Data egress to directory
-if [ "${COPYRECO:-false}" == "true" ] ; then
-  if [ xrdcp --force --recursive ${RECO_TEMP}/${TASKNAME}*.edm4eic.root ${RECO_DIR} ] ; then
-    xrdfs ${XRDURL} ls -l ${RECO_DIR}/${TASKNAME}*.edm4eic.root
-  else
-    xrdcp -d 3 -f --recursive ${RECO_TEMP}/${TASKNAME}*.edm4eic.root ${RECO_DIR}
-    echo "Failed to copy reconstructed files to xrootd"
-  fi
+if [ "${COPYRECO:-true}" == "true" ] ; then
+  xrdcp --force --recursive ${RECO_TEMP}/${TASKNAME}*.edm4eic.root ${RECO_DIR}
+  xrdfs ${XRDURL} ls -l ${RECO_DIR}/${TASKNAME}*.edm4eic.root
 fi
 if [ "${COPYLOG:-false}" == "true" ] ; then
-  if [ xrdcp --force --recursive ${LOG_TEMP}/${TASKNAME}.* ${LOG_DIR} ] ; then
-    xrdfs ${XRDURL} ls -l ${LOG_DIR}/${TASKNAME}.*
-  else
-    echo "Failed to copy log files to xrootd"
-  fi
+  xrdcp --force --recursive ${LOG_TEMP}/${TASKNAME}.* ${LOG_DIR}
+  xrdfs ${XRDURL} ls -l ${LOG_DIR}/${TASKNAME}.*
 fi
 
 # closeout
