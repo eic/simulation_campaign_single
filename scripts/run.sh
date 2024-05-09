@@ -146,7 +146,7 @@ mkdir -p ${RECO_TEMP}
 } 2>&1 | grep -v SECRET_KEY | tee ${LOG_TEMP}/${TASKNAME}.npsim.log | tail -n1000
 
 # Data egress to directory
-if [ "${COPYFULL:-true}" == "true" ] ; then
+if [ "${COPYFULL:-false}" == "true" ] ; then
   xrdcp --force --recursive ${FULL_TEMP}/${TASKNAME}.edm4hep.root ${FULL_DIR}
   xrdfs ${XRDURL} ls -l ${FULL_DIR}/${TASKNAME}.edm4hep.root
 fi
@@ -172,7 +172,7 @@ fi
 ls -al ${LOG_TEMP}/${TASKNAME}.*
 
 # Data egress to directory
-if [ "${COPYRECO:-true}" == "true" ] ; then
+if [ "${COPYRECO:-false}" == "true" ] ; then
   xrdcp --force --recursive ${RECO_TEMP}/${TASKNAME}*.edm4eic.root ${RECO_DIR}
   xrdfs ${XRDURL} ls -l ${RECO_DIR}/${TASKNAME}*.edm4eic.root
 fi
