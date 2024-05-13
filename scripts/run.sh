@@ -120,7 +120,7 @@ fi
 FULL_DIR=${XRDWURL}/FULL/${TAG}
 FULL_TEMP=${TMPDIR}/FULL/${TAG}
 mkdir -p ${FULL_TEMP}
-if [ "${COPYFULL:-false}" == "true" ] ; then 
+if [ "${COPYFULL:-false}" == "true" ] ; then
   xrdcp --force --recursive ${TMPDIR}/FULL ${XRDWURL}
 fi
 #
