@@ -63,7 +63,7 @@ BASEDIR=${DATADIR:-${PWD}}
 
 # XRD Read and Write locations
 XRDURL="root://dtn-eic.jlab.org//work/eic2/EPIC"
-XRDWURL="xroots://dtn2201.jlab.org//eic/eic2/EPIC"
+XRDWURL="xroots://dtn2201.jlab.org//eic/eic2/EPIC/xrdtest"
 
 # Local temp dir
 echo "SLURM_TMPDIR=${SLURM_TMPDIR:-}"
@@ -113,14 +113,23 @@ xrdcp -f ${XRDURL}/${INPUT_FILE} ${INPUT_DIR}
 LOG_DIR=${XRDWURL}/LOG/${TAG}
 LOG_TEMP=${TMPDIR}/LOG/${TAG}
 mkdir -p ${LOG_TEMP}
+if [ "${COPYLOG:-false}" == "true" ] ; then
+  xrdcp --force --recursive ${TMPDIR}/LOG ${XRDWURL}
+fi
 #
 FULL_DIR=${XRDWURL}/FULL/${TAG}
 FULL_TEMP=${TMPDIR}/FULL/${TAG}
 mkdir -p ${FULL_TEMP}
+if [ "${COPYFULL:-false}" == "true" ] ; then 
+  xrdcp --force --recursive ${TMPDIR}/FULL ${XRDWURL}
+fi
 #
 RECO_DIR=${XRDWURL}/RECO/${TAG}
 RECO_TEMP=${TMPDIR}/RECO/${TAG}
 mkdir -p ${RECO_TEMP}
+if [ "${COPYRECO:-false}" == "true" ] ; then
+  xrdcp --force --recursive ${TMPDIR}/RECO ${XRDWURL}
+fi
 
 # Run simulation
 {
