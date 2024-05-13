@@ -63,7 +63,7 @@ BASEDIR=${DATADIR:-${PWD}}
 
 # XRD Write locations
 XRDURL="xroots://dtn2201.jlab.org/"
-XRDBASE="/eic/eic2/EPIC/xrdtest"
+XRDBASE=${XRDBASE:-"/eic/eic2/EPIC/xrdtest"}
 
 # XRD Read locations
 XRDRURL="root://dtn-eic.jlab.org/"
