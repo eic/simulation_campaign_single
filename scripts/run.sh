@@ -64,7 +64,7 @@ BASEDIR=${DATADIR:-${PWD}}
 # XRD Read and Write locations
 XRDURL="xroots://dtn2201.jlab.org/"
 XRDBASE="/eic/eic2/EPIC/xrdtest"
-XRDRBASE="/eic/eic2/EPIC"  # Separate variable for read base directory for now. 
+XRDRBASE="/eic/eic2/EPIC"  # Separate variable for read base directory for now.
 
 # Local temp dir
 echo "SLURM_TMPDIR=${SLURM_TMPDIR:-}"
