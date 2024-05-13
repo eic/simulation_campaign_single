@@ -61,10 +61,13 @@ fi
 # Output location
 BASEDIR=${DATADIR:-${PWD}}
 
-# XRD Read and Write locations
+# XRD Write locations
 XRDURL="xroots://dtn2201.jlab.org/"
 XRDBASE="/eic/eic2/EPIC/xrdtest"
-XRDRBASE="/eic/eic2/EPIC"  # Separate variable for read base directory for now.
+
+# XRD Read locations
+XRDRURL="root://dtn-eic.jlab.org/"
+XRDRBASE="/work/eic2/EPIC"  
 
 # Local temp dir
 echo "SLURM_TMPDIR=${SLURM_TMPDIR:-}"
@@ -108,7 +111,7 @@ mkdir -p ${INPUT_DIR}
 TAG=${DETECTOR_VERSION}/${DETECTOR_CONFIG}/${TAG}
 
 # Copy input file from xrootd
-xrdcp -f ${XRDURL}/${XRDRBASE}/${INPUT_FILE} ${INPUT_DIR}
+xrdcp -f ${XRDRURL}/${XRDRBASE}/${INPUT_FILE} ${INPUT_DIR}
 
 # Output file names
 LOG_DIR=LOG/${TAG}
