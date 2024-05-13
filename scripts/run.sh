@@ -62,8 +62,8 @@ fi
 BASEDIR=${DATADIR:-${PWD}}
 
 # XRD Read and Write locations
-XRDURL="root://dtn-eic.jlab.org//work/eic2/EPIC"
-XRDWURL="xroots://dtn2201.jlab.org//eic/eic2/EPIC/xrdtest"
+XRDURL="xroots://dtn2201.jlab.org/"
+XRDBASE="/eic/eic2/EPIC/xrdtest"
 
 # Local temp dir
 echo "SLURM_TMPDIR=${SLURM_TMPDIR:-}"
@@ -107,29 +107,20 @@ mkdir -p ${INPUT_DIR}
 TAG=${DETECTOR_VERSION}/${DETECTOR_CONFIG}/${TAG}
 
 # Copy input file from xrootd
-xrdcp -f ${XRDURL}/${INPUT_FILE} ${INPUT_DIR}
+xrdcp -f ${XRDURL}/${XRDBASE}/../${INPUT_FILE} ${INPUT_DIR}
 
 # Output file names
-LOG_DIR=${XRDWURL}/LOG/${TAG}
-LOG_TEMP=${TMPDIR}/LOG/${TAG}
+LOG_DIR=LOG/${TAG}
+LOG_TEMP=${TMPDIR}/${LOG_DIR}
 mkdir -p ${LOG_TEMP}
-if [ "${COPYLOG:-false}" == "true" ] ; then
-  xrdcp --force --recursive ${TMPDIR}/LOG ${XRDWURL}
-fi
 #
-FULL_DIR=${XRDWURL}/FULL/${TAG}
-FULL_TEMP=${TMPDIR}/FULL/${TAG}
+FULL_DIR=FULL/${TAG}
+FULL_TEMP=${TMPDIR}/${FULL_DIR}
 mkdir -p ${FULL_TEMP}
-if [ "${COPYFULL:-false}" == "true" ] ; then
-  xrdcp --force --recursive ${TMPDIR}/FULL ${XRDWURL}
-fi
 #
-RECO_DIR=${XRDWURL}/RECO/${TAG}
-RECO_TEMP=${TMPDIR}/RECO/${TAG}
+RECO_DIR=RECO/${TAG}
+RECO_TEMP=${TMPDIR}/${RECO_DIR}
 mkdir -p ${RECO_TEMP}
-if [ "${COPYRECO:-false}" == "true" ] ; then
-  xrdcp --force --recursive ${TMPDIR}/RECO ${XRDWURL}
-fi
 
 # Run simulation
 {
@@ -156,8 +147,9 @@ fi
 
 # Data egress to directory
 if [ "${COPYFULL:-false}" == "true" ] ; then
-  xrdcp --force --recursive ${FULL_TEMP}/${TASKNAME}.edm4hep.root ${FULL_DIR}
-  xrdfs ${XRDURL} ls -l ${FULL_DIR}/${TASKNAME}.edm4hep.root
+  xrdfs ${XRDURL} mkdir -p ${XRDBASE}/${FULL_DIR}
+  xrdcp --force --recursive ${FULL_TEMP}/${TASKNAME}.edm4hep.root ${XRDURL}/${XRDBASE}/${FULL_DIR}
+  xrdfs ${XRDURL} ls -l ${XRDBASE}/${FULL_DIR}/${TASKNAME}.edm4hep.root
 fi
 
 # Run eicrecon reconstruction
@@ -182,12 +174,14 @@ ls -al ${LOG_TEMP}/${TASKNAME}.*
 
 # Data egress to directory
 if [ "${COPYRECO:-false}" == "true" ] ; then
-  xrdcp --force --recursive ${RECO_TEMP}/${TASKNAME}*.edm4eic.root ${RECO_DIR}
-  xrdfs ${XRDURL} ls -l ${RECO_DIR}/${TASKNAME}*.edm4eic.root
+  xrdfs ${XRDURL} mkdir -p ${XRDBASE}/${RECO_DIR}
+  xrdcp --force --recursive ${RECO_TEMP}/${TASKNAME}*.edm4eic.root ${XRDURL}/${XRDBASE}/${RECO_DIR}
+  xrdfs ${XRDURL} ls -l ${XRDBASE}/${RECO_DIR}/${TASKNAME}*.edm4eic.root
 fi
 if [ "${COPYLOG:-false}" == "true" ] ; then
-  xrdcp --force --recursive ${LOG_TEMP}/${TASKNAME}.* ${LOG_DIR}
-  xrdfs ${XRDURL} ls -l ${LOG_DIR}/${TASKNAME}.*
+  xrdfs ${XRDURL} mkdir -p ${XRDBASE}/${LOG_DIR}
+  xrdcp --force --recursive ${LOG_TEMP}/${TASKNAME}.* ${XRDURL}/${XRDBASE}/${LOG_DIR}
+  xrdfs ${XRDURL} ls -l ${XRDBASE}/${LOG_DIR}/${TASKNAME}.*
 fi
 
 # closeout
