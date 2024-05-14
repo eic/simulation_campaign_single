@@ -62,8 +62,8 @@ fi
 BASEDIR=${DATADIR:-${PWD}}
 
 # XRD Write locations
-XRDURL="xroots://dtn2201.jlab.org/"
-XRDBASE=${XRDBASE:-"/eic/eic2/EPIC/xrdtest"}
+XRDWURL="xroots://dtn2201.jlab.org/"
+XRDWBASE=${XRDWBASE:-"/eic/eic2/EPIC/xrdtest"}
 
 # XRD Read locations
 XRDRURL="root://dtn-eic.jlab.org/"
@@ -151,9 +151,9 @@ mkdir -p ${RECO_TEMP}
 
 # Data egress to directory
 if [ "${COPYFULL:-false}" == "true" ] ; then
-  xrdfs ${XRDURL} mkdir -p ${XRDBASE}/${FULL_DIR}
-  xrdcp --force --recursive ${FULL_TEMP}/${TASKNAME}.edm4hep.root ${XRDURL}/${XRDBASE}/${FULL_DIR}
-  xrdfs ${XRDURL} ls -l ${XRDBASE}/${FULL_DIR}/${TASKNAME}.edm4hep.root
+  xrdfs ${XRDWURL} mkdir -p ${XRDWBASE}/${FULL_DIR}
+  xrdcp --force --recursive ${FULL_TEMP}/${TASKNAME}.edm4hep.root ${XRDWURL}/${XRDWBASE}/${FULL_DIR}
+  xrdfs ${XRDWURL} ls -l ${XRDWBASE}/${FULL_DIR}/${TASKNAME}.edm4hep.root
 fi
 
 # Run eicrecon reconstruction
@@ -178,14 +178,14 @@ ls -al ${LOG_TEMP}/${TASKNAME}.*
 
 # Data egress to directory
 if [ "${COPYRECO:-false}" == "true" ] ; then
-  xrdfs ${XRDURL} mkdir -p ${XRDBASE}/${RECO_DIR}
-  xrdcp --force --recursive ${RECO_TEMP}/${TASKNAME}*.edm4eic.root ${XRDURL}/${XRDBASE}/${RECO_DIR}
-  xrdfs ${XRDURL} ls -l ${XRDBASE}/${RECO_DIR}/${TASKNAME}*.edm4eic.root
+  xrdfs ${XRDWURL} mkdir -p ${XRDWBASE}/${RECO_DIR}
+  xrdcp --force --recursive ${RECO_TEMP}/${TASKNAME}*.edm4eic.root ${XRDWURL}/${XRDWBASE}/${RECO_DIR}
+  xrdfs ${XRDWURL} ls -l ${XRDWBASE}/${RECO_DIR}/${TASKNAME}*.edm4eic.root
 fi
 if [ "${COPYLOG:-false}" == "true" ] ; then
-  xrdfs ${XRDURL} mkdir -p ${XRDBASE}/${LOG_DIR}
-  xrdcp --force --recursive ${LOG_TEMP}/${TASKNAME}.* ${XRDURL}/${XRDBASE}/${LOG_DIR}
-  xrdfs ${XRDURL} ls -l ${XRDBASE}/${LOG_DIR}/${TASKNAME}.*
+  xrdfs ${XRDWURL} mkdir -p ${XRDWBASE}/${LOG_DIR}
+  xrdcp --force --recursive ${LOG_TEMP}/${TASKNAME}.* ${XRDWURL}/${XRDWBASE}/${LOG_DIR}
+  xrdfs ${XRDWURL} ls -l ${XRDWBASE}/${LOG_DIR}/${TASKNAME}.*
 fi
 
 # closeout
