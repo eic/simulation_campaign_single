@@ -22,7 +22,7 @@ jobs:
     - uses: eic/run-cvmfs-osg-eic-shell@main
       with:
         platform-release: "jug_xl:nightly"
-        setup: /opt/detector/setup.sh
+        setup: /opt/detector/epic-main/bin/thisepic.sh
         run: |
           test "$(scripts/generate.sh)" = "e-_1GeV_45to135deg.steer"
           scripts/generate.sh && test -f e-_1GeV_45to135deg.steer
@@ -40,7 +40,7 @@ jobs:
     - uses: eic/run-cvmfs-osg-eic-shell@main
       with:
         platform-release: "jug_xl:nightly"
-        setup: /opt/detector/setup.sh
+        setup: /opt/detector/epic-main/bin/thisepic.sh
         run: |
           scripts/run.sh EVGEN/SINGLE/e-/1GeV/45to135deg/e-_1GeV_45to135deg.steer 100
 
@@ -53,6 +53,6 @@ jobs:
     - uses: eic/run-cvmfs-osg-eic-shell@main
       with:
         platform-release: "jug_xl:nightly"
-        setup: /opt/detector/setup.sh
+        setup: /opt/detector/epic-main/bin/thisepic.sh
         run: |
           scripts/run.sh EVGEN/SINGLE/pi+/1GeV/3to50deg/pi+_1GeV_3to50deg.steer 100 0001
