@@ -70,23 +70,6 @@ XRDRURL="root://dtn-eic.jlab.org/"
 XRDRBASE="/work/eic2/EPIC"
 
 # Local temp dir
-echo "SLURM_TMPDIR=${SLURM_TMPDIR:-}"
-echo "SLURM_JOB_ID=${SLURM_JOB_ID:-}"
-echo "SLURM_ARRAY_JOB_ID=${SLURM_ARRAY_JOB_ID:-}"
-echo "SLURM_ARRAY_TASK_ID=${SLURM_ARRAY_TASK_ID:-}"
-echo "_CONDOR_SCRATCH_DIR=${_CONDOR_SCRATCH_DIR:-}"
-echo "OSG_WN_TMP=${OSG_WN_TMP:-}"
-if [ -n "${_CONDOR_SCRATCH_DIR:-}" ] ; then
-  TMPDIR=${_CONDOR_SCRATCH_DIR}
-elif [ -n "${SLURM_TMPDIR:-}" ] ; then
-  TMPDIR=${SLURM_TMPDIR}
-else
-  if [ -d "/scratch/slurm/${SLURM_JOB_ID:-}" ] ; then
-    TMPDIR="/scratch/slurm/${SLURM_JOB_ID:-}"
-  else
-    TMPDIR=${TMPDIR:-/tmp}/${$}
-  fi
-fi
 echo "TMPDIR=${TMPDIR}"
 mkdir -p ${TMPDIR}
 ls -al ${TMPDIR}
