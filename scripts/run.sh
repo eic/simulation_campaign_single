@@ -173,5 +173,3 @@ fi
 
 # closeout
 date
-find ${TMPDIR}
-du -sh ${TMPDIR}
