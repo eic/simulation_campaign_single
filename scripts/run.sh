@@ -70,8 +70,8 @@ XRDRURL="root://dtn-eic.jlab.org/"
 XRDRBASE="/work/eic2/EPIC"
 
 # Local temp dir
+TMPDIR=${WORK_DIR:-/tmp}
 echo "TMPDIR=${TMPDIR}"
-mkdir -p ${TMPDIR}
 ls -al ${TMPDIR}
 
 # Input file parsing
