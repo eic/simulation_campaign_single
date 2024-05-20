@@ -5,7 +5,7 @@ IFS=$'\n\t'
 
 # Load job environment (mask secrets)
 if ls environment*.sh ; then
-  grep -v SECRET environment*.sh
+  grep -v BEARER environment*.sh
   source environment*.sh
 fi
 
@@ -147,7 +147,7 @@ mkdir -p ${RECO_TEMP}
     --compactFile ${DETECTOR_PATH}/${DETECTOR_CONFIG}.xml \
     --outputFile ${FULL_TEMP}/${TASKNAME}.edm4hep.root
   ls -al ${FULL_TEMP}/${TASKNAME}.edm4hep.root
-} 2>&1 | grep -v SECRET_KEY | tee ${LOG_TEMP}/${TASKNAME}.npsim.log | tail -n1000
+} 2>&1 | tee ${LOG_TEMP}/${TASKNAME}.npsim.log | tail -n1000
 
 # Data egress to directory
 if [ "${COPYFULL:-false}" == "true" ] ; then
@@ -170,7 +170,7 @@ fi
     "${FULL_TEMP}/${TASKNAME}.edm4hep.root"
   if [ -f jana.dot ] ; then mv jana.dot ${LOG_TEMP}/${TASKNAME}.eicrecon.dot ; fi
   ls -al ${RECO_TEMP}/${TASKNAME}*.eicrecon.tree.edm4eic.root
-} 2>&1 | grep -v SECRET_KEY | tee ${LOG_TEMP}/${TASKNAME}.eicrecon.log | tail -n1000
+} 2>&1 | tee ${LOG_TEMP}/${TASKNAME}.eicrecon.log | tail -n1000
 
 # List log files
 ls -al ${LOG_TEMP}/${TASKNAME}.*
