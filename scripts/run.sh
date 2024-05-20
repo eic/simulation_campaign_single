@@ -153,7 +153,6 @@ mkdir -p ${RECO_TEMP}
 if [ "${COPYFULL:-false}" == "true" ] ; then
   xrdfs ${XRDWURL} mkdir -p ${XRDWBASE}/${FULL_DIR}
   xrdcp --force --recursive ${FULL_TEMP}/${TASKNAME}.edm4hep.root ${XRDWURL}/${XRDWBASE}/${FULL_DIR}
-  xrdfs ${XRDWURL} ls -l ${XRDWBASE}/${FULL_DIR}/${TASKNAME}.edm4hep.root
 fi
 
 # Run eicrecon reconstruction
@@ -180,12 +179,10 @@ ls -al ${LOG_TEMP}/${TASKNAME}.*
 if [ "${COPYRECO:-false}" == "true" ] ; then
   xrdfs ${XRDWURL} mkdir -p ${XRDWBASE}/${RECO_DIR}
   xrdcp --force --recursive ${RECO_TEMP}/${TASKNAME}*.edm4eic.root ${XRDWURL}/${XRDWBASE}/${RECO_DIR}
-  xrdfs ${XRDWURL} ls -l ${XRDWBASE}/${RECO_DIR}/${TASKNAME}*.edm4eic.root
 fi
 if [ "${COPYLOG:-false}" == "true" ] ; then
   xrdfs ${XRDWURL} mkdir -p ${XRDWBASE}/${LOG_DIR}
   xrdcp --force --recursive ${LOG_TEMP}/${TASKNAME}.* ${XRDWURL}/${XRDWBASE}/${LOG_DIR}
-  xrdfs ${XRDWURL} ls -l ${XRDWBASE}/${LOG_DIR}/${TASKNAME}.*
 fi
 
 # closeout
