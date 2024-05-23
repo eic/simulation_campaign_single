@@ -37,7 +37,7 @@ test -f .machine.ad && cat .machine.ad
 
 # Load container environment (include ${DETECTOR_VERSION})
 export DETECTOR_CONFIG_REQUESTED=${DETECTOR_CONFIG:-}
-source /opt/detector/epic-${DETECTOR_VERSION:-nightly}/bin/thisepic.sh
+source /opt/detector/epic-${DETECTOR_VERSION:-main}/bin/thisepic.sh
 export DETECTOR_CONFIG=${DETECTOR_CONFIG_REQUESTED:-${DETECTOR_CONFIG:-$DETECTOR}}
 
 # Argument parsing
@@ -108,7 +108,7 @@ INPUT_PREFIX=${INPUT_DIR/\/*/}
 TAG=${INPUT_DIR/${INPUT_PREFIX}\//}
 INPUT_DIR=${BASEDIR}/EVGEN/${TAG}
 mkdir -p ${INPUT_DIR}
-TAG=${DETECTOR_VERSION}/${DETECTOR_CONFIG}/${TAG}
+TAG=${DETECTOR_VERSION:-main}/${DETECTOR_CONFIG}/${TAG}
 
 # Copy input file from xrootd
 xrdcp -f ${XRDRURL}/${XRDRBASE}/${INPUT_FILE} ${INPUT_DIR}
