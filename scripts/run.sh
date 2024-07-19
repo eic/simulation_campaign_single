@@ -151,7 +151,7 @@ mkdir -p ${RECO_TEMP} ${BASEDIR}/${RECO_DIR}
 
 # Data egress to directory
 if [ "${COPYFULL:-false}" == "true" ] ; then
-  xrdfs ${XRDWURL} mkdir -p ${XRDWBASE}/${FULL_DIR} || echo "Cannot write simulation outputs to xrootd server" 
+  xrdfs ${XRDWURL} mkdir -p ${XRDWBASE}/${FULL_DIR} || echo "Cannot write simulation outputs to xrootd server"
   xrdcp --force --recursive ${FULL_TEMP}/${TASKNAME}.edm4hep.root ${XRDWURL}/${XRDWBASE}/${FULL_DIR} || \
   cp ${FULL_TEMP}/${TASKNAME}.edm4hep.root ${BASEDIR}/${FULL_DIR} || true
 fi
