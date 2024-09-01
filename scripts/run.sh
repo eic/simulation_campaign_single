@@ -155,8 +155,8 @@ mkdir -p ${RECO_TEMP} ${BASEDIR}/${RECO_DIR}
 if [ "${COPYFULL:-false}" == "true" ] ; then
   # Token for write authentication
   export BEARER_TOKEN=$(cat ${_CONDOR_CREDS}/eic.use)
-  xrdfs ${XRDWURL} mkdir -p ${XRDWBASE}/${FULL_DIR} || echo "Cannot write simulation outputs to xrootd server" 
-  xrdcp --force --recursive ${FULL_TEMP}/${TASKNAME}.edm4hep.root ${XRDWURL}/${XRDWBASE}/${FULL_DIR} 
+  xrdfs ${XRDWURL} mkdir -p ${XRDWBASE}/${FULL_DIR} || echo "Cannot write simulation outputs to xrootd server"
+  xrdcp --force --recursive ${FULL_TEMP}/${TASKNAME}.edm4hep.root ${XRDWURL}/${XRDWBASE}/${FULL_DIR}
 fi
 
 # Run eicrecon reconstruction
@@ -184,7 +184,7 @@ if [ "${COPYRECO:-false}" == "true" ] ; then
   # Token for write authentication
   export BEARER_TOKEN=$(cat ${_CONDOR_CREDS}/eic.use)
   xrdfs ${XRDWURL} mkdir -p ${XRDWBASE}/${RECO_DIR} || echo "Cannot write reconstructed outputs to xrootd server"
-  xrdcp --force --recursive ${RECO_TEMP}/${TASKNAME}*.edm4eic.root ${XRDWURL}/${XRDWBASE}/${RECO_DIR} 
+  xrdcp --force --recursive ${RECO_TEMP}/${TASKNAME}*.edm4eic.root ${XRDWURL}/${XRDWBASE}/${RECO_DIR}
 fi
 if [ "${COPYLOG:-false}" == "true" ] ; then
   # Token for write authentication
