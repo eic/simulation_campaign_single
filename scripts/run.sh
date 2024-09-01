@@ -37,7 +37,9 @@ test -f .machine.ad && cat .machine.ad
 
 # Load container environment (include ${DETECTOR_VERSION})
 export DETECTOR_CONFIG_REQUESTED=${DETECTOR_CONFIG:-}
-source /opt/detector/epic-${DETECTOR_VERSION:-main}/bin/thisepic.sh
+export DETECTOR_VERSION_REQUESTED=${DETECTOR_VERSION:-main}
+source /opt/detector/epic-${DETECTOR_VERSION_REQUESTED}/bin/thisepic.sh
+export DETECTOR_VERSION=${DETECTOR_VERSION_REQUESTED}
 export DETECTOR_CONFIG=${DETECTOR_CONFIG_REQUESTED:-${DETECTOR_CONFIG:-$DETECTOR}}
 
 # Argument parsing
@@ -63,7 +65,7 @@ BASEDIR=${DATADIR:-${PWD}}
 
 # XRD Write locations
 XRDWURL="xroots://dtn2201.jlab.org/"
-XRDWBASE=${XRDWBASE:-"/eic/eic2/EPIC/xrdtest"}
+XRDWBASE=${XRDWBASE:-"/eic/eic2/EPIC"}
 
 # XRD Read locations
 XRDRURL="root://dtn-eic.jlab.org/"
@@ -151,9 +153,10 @@ mkdir -p ${RECO_TEMP} ${BASEDIR}/${RECO_DIR}
 
 # Data egress to directory
 if [ "${COPYFULL:-false}" == "true" ] ; then
+  # Token for write authentication
+  export BEARER_TOKEN=$(cat ${_CONDOR_CREDS}/eic.use)
   xrdfs ${XRDWURL} mkdir -p ${XRDWBASE}/${FULL_DIR} || echo "Cannot write simulation outputs to xrootd server"
-  xrdcp --force --recursive ${FULL_TEMP}/${TASKNAME}.edm4hep.root ${XRDWURL}/${XRDWBASE}/${FULL_DIR} || \
-  cp ${FULL_TEMP}/${TASKNAME}.edm4hep.root ${BASEDIR}/${FULL_DIR} || true
+  xrdcp --force --recursive ${FULL_TEMP}/${TASKNAME}.edm4hep.root ${XRDWURL}/${XRDWBASE}/${FULL_DIR}
 fi
 
 # Run eicrecon reconstruction
@@ -178,14 +181,16 @@ ls -al ${LOG_TEMP}/${TASKNAME}.*
 
 # Data egress to directory
 if [ "${COPYRECO:-false}" == "true" ] ; then
+  # Token for write authentication
+  export BEARER_TOKEN=$(cat ${_CONDOR_CREDS}/eic.use)
   xrdfs ${XRDWURL} mkdir -p ${XRDWBASE}/${RECO_DIR} || echo "Cannot write reconstructed outputs to xrootd server"
-  xrdcp --force --recursive ${RECO_TEMP}/${TASKNAME}*.edm4eic.root ${XRDWURL}/${XRDWBASE}/${RECO_DIR} || \
-  cp ${RECO_TEMP}/${TASKNAME}*.edm4eic.root ${BASEDIR}/${RECO_DIR} || true
+  xrdcp --force --recursive ${RECO_TEMP}/${TASKNAME}*.edm4eic.root ${XRDWURL}/${XRDWBASE}/${RECO_DIR}
 fi
 if [ "${COPYLOG:-false}" == "true" ] ; then
+  # Token for write authentication
+  export BEARER_TOKEN=$(cat ${_CONDOR_CREDS}/eic.use)
   xrdfs ${XRDWURL} mkdir -p ${XRDWBASE}/${LOG_DIR} || echo "Cannot write log outputs to xrootd server"
-  xrdcp --force --recursive ${LOG_TEMP}/${TASKNAME}.* ${XRDWURL}/${XRDWBASE}/${LOG_DIR} || \
-  cp ${LOG_TEMP}/${TASKNAME}.* ${BASEDIR}/${LOG_DIR} || true
+  xrdcp --force --recursive ${LOG_TEMP}/${TASKNAME}.* ${XRDWURL}/${XRDWBASE}/${LOG_DIR}
 fi
 
 # closeout
