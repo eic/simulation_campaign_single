@@ -17,11 +17,11 @@ jobs:
   generate:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-    - uses: cvmfs-contrib/github-action-cvmfs@v3
+    - uses: actions/checkout@v4
+    - uses: cvmfs-contrib/github-action-cvmfs@v4
     - uses: eic/run-cvmfs-osg-eic-shell@main
       with:
-        platform-release: "jug_xl:nightly"
+        platform-release: "eic_xl:nightly"
         setup: /opt/detector/epic-main/bin/thisepic.sh
         run: |
           test "$(scripts/generate.sh)" = "e-_1GeV_45to135deg.steer"
@@ -35,11 +35,11 @@ jobs:
     needs: generate
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-    - uses: cvmfs-contrib/github-action-cvmfs@v3
+    - uses: actions/checkout@v4
+    - uses: cvmfs-contrib/github-action-cvmfs@v4
     - uses: eic/run-cvmfs-osg-eic-shell@main
       with:
-        platform-release: "jug_xl:nightly"
+        platform-release: "eic_xl:nightly"
         setup: /opt/detector/epic-main/bin/thisepic.sh
         run: |
           scripts/run.sh EVGEN/SINGLE/e-/1GeV/45to135deg/e-_1GeV_45to135deg.steer 100
@@ -48,11 +48,11 @@ jobs:
     needs: generate
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-    - uses: cvmfs-contrib/github-action-cvmfs@v3
+    - uses: actions/checkout@v4
+    - uses: cvmfs-contrib/github-action-cvmfs@v4
     - uses: eic/run-cvmfs-osg-eic-shell@main
       with:
-        platform-release: "jug_xl:nightly"
+        platform-release: "eic_xl:nightly"
         setup: /opt/detector/epic-main/bin/thisepic.sh
         run: |
           scripts/run.sh EVGEN/SINGLE/pi+/1GeV/3to50deg/pi+_1GeV_3to50deg.steer 100 0001
